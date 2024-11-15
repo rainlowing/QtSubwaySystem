@@ -1,0 +1,40 @@
+# Qt 编译时产生的文件
+*.pro.user
+*.pro.user.*
+*.qmake.stash
+*.qmake.cache
+*.moc
+*.ui.o
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+*.dSYM/
+
+# 编译目录
+build/
+debug/
+release/
+*.log
+
+# 临时文件
+*.swp
+*.bak
+
+# IDE 配置文件
+.idea/
+.vscode/
+
+# Qt 自动生成的文件
+*.moc
+*.ui.o
+*.qrc.o
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# Allen Explorer
+.ala
