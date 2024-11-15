@@ -17,6 +17,7 @@
 build/
 debug/
 release/
+cmake-build-debug/
 *.log
 
 # 临时文件
@@ -37,4 +38,4 @@ Thumbs.db
 .DS_Store
 
 # Allen Explorer
-.ala
+*.ala
