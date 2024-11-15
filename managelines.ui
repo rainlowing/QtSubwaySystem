@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>400</height>
+    <height>399</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_addline">
     <attribute name="icon">
@@ -149,6 +149,16 @@
      </property>
      <property name="default">
       <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QWidget" name="colorWidget" native="true">
+     <property name="geometry">
+      <rect>
+       <x>250</x>
+       <y>220</y>
+       <width>31</width>
+       <height>31</height>
+      </rect>
      </property>
     </widget>
    </widget>
@@ -431,7 +441,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab">
+   <widget class="QWidget" name="tab_connect">
     <attribute name="icon">
      <iconset resource="resource.qrc">
       <normaloff>:/icon/icon/connect.png</normaloff>:/icon/icon/connect.png</iconset>
@@ -449,7 +459,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;提示：&lt;/span&gt;连接站点&lt;/p&gt;&lt;p&gt;1.连接“站点1”和“站点2”为一条边；&lt;/p&gt;&lt;p&gt;2.“站点1”和“站点2”属于同一条线路中的不同站点；&lt;/p&gt;&lt;p&gt;3.站点及线路选择可以选择也可直接输入。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;提示：&lt;/span&gt;连接站点&lt;/p&gt;&lt;p&gt;1. 连接“站点1”和“站点2”为一条边；&lt;/p&gt;&lt;p&gt;2. “站点1”和“站点2”属于同一条线路中的不同站点；&lt;/p&gt;&lt;p&gt;3. 站点及线路选择可以选择也可直接输入。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_6">
@@ -624,7 +634,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="tab_3">
+   <widget class="QWidget" name="tab_addbytext">
     <attribute name="icon">
      <iconset resource="resource.qrc">
       <normaloff>:/icon/icon/text.png</normaloff>:/icon/icon/text.png</iconset>
@@ -642,34 +652,34 @@
       </rect>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButtonAddByText">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>340</y>
+       <width>80</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Consolas</family>
+      </font>
+     </property>
+     <property name="text">
+      <string>添加连接</string>
+     </property>
+     <property name="default">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
-  </widget>
-  <widget class="QPushButton" name="pushButtonAddByText">
-   <property name="geometry">
-    <rect>
-     <x>510</x>
-     <y>360</y>
-     <width>80</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>0</width>
-     <height>0</height>
-    </size>
-   </property>
-   <property name="font">
-    <font>
-     <family>Consolas</family>
-    </font>
-   </property>
-   <property name="text">
-    <string>添加</string>
-   </property>
-   <property name="default">
-    <bool>true</bool>
-   </property>
   </widget>
  </widget>
  <resources>

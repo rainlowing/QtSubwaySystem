@@ -30,12 +30,26 @@ private slots:
     void transferStartLineChanged(QString);
     // 槽函数：ComboBoxEndLine 索引改变
     void transferEndLineChanged(QString);
-    // 槽函数：action_addall 槽函数，显示 ManageLines
-    void on_action_addall_triggered();
-    // 槽函数：action_linemap 槽函数，绘制并显示地铁图所有线路
-    void on_action_linemap_triggered();
     // 槽函数：更新状态栏时间
     void updateTime();
+    // 槽函数：pushButtonAddLine 按下
+    void addLine();
+    // 槽函数：action_addall 添加所有
+    void on_action_addall_triggered();
+    // 槽函数：aciton_addline 添加线路
+    void on_action_addline_triggered();
+    // 槽函数：aciton_addstation 添加站台
+    void on_action_addstation_triggered();
+    // 槽函数：aciton_addconnect 添加连接
+    void on_action_addconnect_triggered();
+    // 槽函数：aciton_addbytext 文本添加
+    void on_action_addbytext_triggered();
+    // 槽函数：action_linemap 绘制并显示地铁图所有线路
+    void on_action_linemap_triggered();
+    // 槽函数：action_enlarge 放大视图
+    void on_action_enlarge_triggered();
+    // 槽函数：action_shrink 缩小视图
+    void on_action_shrink_triggered();
 
 private:
     Ui::MainWindow *ui;                         // 主窗口 UI
@@ -66,6 +80,8 @@ private:
     QPointF getStationScenePos(QPointF coord);
     // 函数：根据站点计算混合颜色
     QColor getStationColor(Station& station);
+    // 事件过滤器
+    bool eventFilter(QObject* object, QEvent* event) override;
 
 
 #define MARGIN 30                                       // 场景对于视口的边距

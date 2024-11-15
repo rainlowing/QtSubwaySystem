@@ -36,7 +36,7 @@ void GraphicsViewZoom::gentleZoom(double factor) {
 
 // 事件过滤器
 bool GraphicsViewZoom::eventFilter(QObject *object, QEvent *event) {
-        if (event->type() == QEvent::Wheel) {
+    if (event->type() == QEvent::Wheel) {
         // 鼠标滚轮事件，处理缩放
         QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
         if (QApplication::keyboardModifiers() == modifiers) {

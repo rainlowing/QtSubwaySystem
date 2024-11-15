@@ -24,7 +24,9 @@
         <file>html/helpWatch.html</file>
     </qresource>
     <qresource prefix="/data">
-        <file>data/subway.txt</file>
         <file>data/test.txt</file>
+        <file>data/subway_wuhan.txt</file>
+        <file>data/subway_xianggang.txt</file>
+        <file>data/subway_shanghai.txt</file>
     </qresource>
 </RCC>

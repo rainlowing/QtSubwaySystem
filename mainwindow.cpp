@@ -1,16 +1,20 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "./ui_managelines.h"
 
 #include <QDateTime>
 #include <QTimer>
 #include <QGraphicsScene>
 #include <QMessageBox>
 #include <QGraphicsLineItem>
+#include <QWheelEvent>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    this->installEventFilter(this);
+
     ui->setupUi(this);
     view = new GraphicsViewZoom(ui->graphicsView);
     scene = new QGraphicsScene;
@@ -32,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent)
     initStatus();
 
     // 读取内置数据
-    bool flag = subwayGraph->readFileData(":/data/data/subway.txt");
+    bool flag = subwayGraph->readFileData(":/data/data/subway_wuhan.txt");
     if (!flag) {
         QMessageBox::warning(this, tr("读取数据错误"), tr("\n将无法展示内置线路！"), QMessageBox::Ok);
     }
@@ -51,6 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::initConnect() {
     connect(ui->comboBoxStartLine, SIGNAL(currentTextChanged(const QString &)), this, SLOT(transferStartLineChanged(QString)));
     connect(ui->comboBoxEndLine, SIGNAL(currentTextChanged(const QString &)), this, SLOT(transferEndLineChanged(QString)));
+    connect(manageLines->ui->pushButtonAddLine, SIGNAL(clicked(bool)), this, SLOT(addLine()));
     QTimer *timer = new QTimer(this);
     timer->start(1000);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
@@ -62,6 +67,22 @@ void MainWindow::updateTime() {
     QString str = time.toString("yyyy-MM-dd hh:mm:ss");
     labelTime->setText(str);
 }
+
+// 槽函数：pushButtonAddLine 按下
+void MainWindow::addLine() {
+    QString newLineName = manageLines->ui->lineEditLineName->text();
+    if (newLineName.isEmpty()) {
+        QMessageBox::warning(this, tr("添加线路"), tr("线路名称不能为空"), QMessageBox::Ok);
+    } else if (subwayGraph->isLineExist(newLineName)) {
+        QMessageBox::warning(this, tr("添加线路"), tr("线路已存在"), QMessageBox::Ok);
+    } else if (!manageLines->isLineColorValid()) {
+        QMessageBox::warning(this, tr("添加线路"), tr("未选择颜色"), QMessageBox::Ok);
+    } else {
+        QMessageBox::information(this, tr("添加线路"), tr("线路：") + newLineName + tr(" 添加成功"), QMessageBox::Ok);
+//        subwayGraph->addLine(newLineName);
+    }
+}
+
 
 // 函数：初始化状态栏
 void MainWindow::initStatus() {
@@ -201,6 +222,15 @@ void MainWindow::drawStation(QVector<Station> &allStations) {
     }
 }
 
+// 函数：根据站点的地理坐标计算站点的场景坐标
+QPointF MainWindow::getStationScenePos(QPointF coord) {
+    QPointF minCoord = subwayGraph->getMinCoord();
+    QPointF maxCoord = subwayGraph->getmaxCoord();
+    double x = (coord.x() - minCoord.x()) / (maxCoord.x() - minCoord.x()) * NET_WIDTH + MARGIN;
+    double y = (maxCoord.y() - coord.y()) / (maxCoord.y() - minCoord.y()) * NET_HEIGHT + MARGIN;
+    return QPointF(x, y);
+}
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -211,15 +241,45 @@ MainWindow::~MainWindow()
     delete appHelp;
 }
 
-
-
+// 槽函数：action_addall，添加所有
 void MainWindow::on_action_addall_triggered()
 {
-    scene->clear();
-
+    manageLines->setAllVisible();
 }
 
+// 槽函数：aciton_addline 添加线路
+void MainWindow::on_action_addline_triggered() {
+    manageLines->setTabVisible(0);
+}
 
+// 槽函数：aciton_addstation 添加站台
+void MainWindow::on_action_addstation_triggered() {
+    manageLines->setTabVisible(1);
+}
+
+// 槽函数：aciton_addconnect 添加连接
+void MainWindow::on_action_addconnect_triggered() {
+    manageLines->setTabVisible(2);
+}
+
+// 槽函数：aciton_addbytext 文本添加
+void MainWindow::on_action_addbytext_triggered() {
+    manageLines->setTabVisible(3);
+}
+
+// 槽函数：action_enlarge，放大视图
+void MainWindow::on_action_enlarge_triggered() {
+    labelHint->setText(tr("已放大"));
+    ui->graphicsView->scale(1.5, 1.5);
+}
+
+// 槽函数：action_shrink，缩小视图
+void MainWindow::on_action_shrink_triggered() {
+    labelHint->setText(tr("已缩小"));
+    ui->graphicsView->scale(0.677, 0.677);
+}
+
+// 槽函数：action_linemap 绘制并显示地铁图所有线路
 void MainWindow::on_action_linemap_triggered()
 {
     scene->clear();
@@ -229,10 +289,14 @@ void MainWindow::on_action_linemap_triggered()
     drawStation(allStations);
 }
 
-QPointF MainWindow::getStationScenePos(QPointF coord) {
-    QPointF minCoord = subwayGraph->getMinCoord();
-    QPointF maxCoord = subwayGraph->getmaxCoord();
-    double x = (coord.x() - minCoord.x()) / (maxCoord.x() - minCoord.x()) * NET_WIDTH + MARGIN;
-    double y = (maxCoord.y() - coord.y()) / (maxCoord.y() - minCoord.y()) * NET_HEIGHT + MARGIN;
-    return QPointF(x, y);
+// 事件过滤器
+bool MainWindow::eventFilter(QObject *object, QEvent *event) {
+    if (event->type() == QEvent::Wheel) {
+        QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
+        if (wheelEvent->angleDelta().y()) {
+            labelHint->setText(tr("提示：按下 Ctrl 键滚动鼠标滑轮可缩放视图"));
+            return true;
+        }
+    }
+    return false;
 }

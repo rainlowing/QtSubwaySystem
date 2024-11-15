@@ -210,7 +210,7 @@ QString SubwayGraph::getStationLineInfo(Station &station) {
     return lineInfo;
 }
 
-// 函数：很具线路ID数组获取站点所属线路，转换为字符串
+// 函数：根据线路ID数组获取站点所属线路，转换为字符串
 QString SubwayGraph::getStationLineInfo(QVector<QString> lineIDs) {
     QString lineInfo;
     for (auto& lineID : lineIDs) {
@@ -219,4 +219,14 @@ QString SubwayGraph::getStationLineInfo(QVector<QString> lineIDs) {
     }
     lineInfo.remove(0, 1);
     return lineInfo;
+}
+
+// 函数：根据名称查找线路是否已存在
+bool SubwayGraph::isLineExist(QString lineName) {
+    return lineIDs.contains(lineName);
+}
+
+// 函数：添加一条线路
+void SubwayGraph::addLine(QString lineName, QColor lineColor) {
+
 }

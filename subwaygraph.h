@@ -53,8 +53,12 @@ public:
     QVector<QString> getStationLineID(Station station);
     // 函数：根据站点获取站点所属线路，并转换为字符串
     QString getStationLineInfo(Station& station);
-    // 函数：很具线路ID数组获取站点所属线路，转换为字符串
+    // 函数：根据线路ID数组获取站点所属线路，转换为字符串
     QString getStationLineInfo(QVector<QString> lineIDs);
+    // 函数：根据名称查找线路是否已存在
+    bool isLineExist(QString lineName);
+    // 函数：添加一条线路
+    void addLine(QString lineName, QColor lineColor);
 
 private:
     QVector<QString> lineNames;                                 // 数组，索引 -> 线路名称

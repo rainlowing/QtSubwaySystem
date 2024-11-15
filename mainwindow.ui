@@ -263,6 +263,7 @@ color:black;</string>
     <addaction name="action_transfer"/>
     <addaction name="menu_add"/>
     <addaction name="separator"/>
+    <addaction name="action_changecity"/>
     <addaction name="action_queryinfo"/>
    </widget>
    <widget class="QMenu" name="menu_V">
@@ -439,6 +440,11 @@ color:black;</string>
   <action name="action_usehelp">
    <property name="text">
     <string>使用帮助</string>
+   </property>
+  </action>
+  <action name="action_changecity">
+   <property name="text">
+    <string>更换城市</string>
    </property>
   </action>
  </widget>
