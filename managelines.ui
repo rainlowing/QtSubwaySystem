@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>1</number>
    </property>
    <widget class="QWidget" name="tab_addline">
     <attribute name="icon">
@@ -385,6 +385,9 @@
        <width>140</width>
        <height>140</height>
       </rect>
+     </property>
+     <property name="placeholderText">
+      <string>未选择线路</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_22">

@@ -184,16 +184,19 @@ color:black;</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QRadioButton" name="radioButtonMinTransfer">
+            <widget class="QRadioButton" name="radioButtonMinStation">
              <property name="text">
-              <string>换乘次数最少</string>
+              <string>途径站数最少</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
            <item>
             <widget class="QRadioButton" name="radioButtonMinTime">
              <property name="text">
-              <string>所需时间最短</string>
+              <string>搭乘时间最短</string>
              </property>
             </widget>
            </item>

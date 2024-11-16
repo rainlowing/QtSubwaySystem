@@ -12,7 +12,7 @@ Line::Line(QString lineName, QColor lineColor) : name(lineName), color(lineColor
 
 }
 
-// 函数：根据线路名获取该线路上所有站点名
-const QVector<QString> &Line::getAllStationNames() const {
-    return stationNameVector;
+// 函数：获取所有站点名
+QVector<QString> Line::getAllStationNames() {
+    return stationNames;
 }

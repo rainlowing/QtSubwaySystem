@@ -33,6 +33,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         mainwindow.ui
         subwaygraph.h subwaygraph.cpp
         apphelp.h apphelp.cpp
+        edge.h edge.cpp
 
 
 

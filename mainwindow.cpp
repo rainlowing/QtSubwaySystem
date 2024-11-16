@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QGraphicsLineItem>
 #include <QWheelEvent>
+#include <utility>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -55,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::initConnect() {
     connect(ui->comboBoxStartLine, SIGNAL(currentTextChanged(const QString &)), this, SLOT(transferStartLineChanged(QString)));
     connect(ui->comboBoxEndLine, SIGNAL(currentTextChanged(const QString &)), this, SLOT(transferEndLineChanged(QString)));
+    connect(ui->pushButtonTransfer, SIGNAL(clicked(bool)), this, SLOT(transfer()));
+
     connect(manageLines->ui->pushButtonAddLine, SIGNAL(clicked(bool)), this, SLOT(addLine()));
     QTimer *timer = new QTimer(this);
     timer->start(1000);
@@ -66,6 +69,33 @@ void MainWindow::updateTime() {
     QDateTime time = QDateTime::currentDateTime();
     QString str = time.toString("yyyy-MM-dd hh:mm:ss");
     labelTime->setText(str);
+}
+
+// 槽函数：pushButtonTransfer 按下
+void MainWindow::transfer() {
+    QString startStationName = ui->comboBoxStartStation->currentText();
+    QString endStationName = ui->comboBoxEndStation->currentText();
+    // 换乘方式：1 站数最少  2 时间最短
+    int way = ui->radioButtonMinStation->isChecked() ? 1 : 2;
+    // 返回结果
+    QVector<Station> resS;
+    QVector<Edge> resE;
+
+    switch (way) {
+        case 1:
+            labelHint->setText(tr("正在查询从 ") + startStationName + tr("站 到 ") + endStationName + tr("站 的途径站数最少路线"));
+//            subwayGraph->leastStations();
+            break;
+        case 2:
+            labelHint->setText(tr("正在查询从 ") + startStationName + tr("站 到 ") + endStationName + tr("站 的搭乘时间最短路线"));
+//            subwayGraph->leastTime(startStationName, endStationName, resS, resE);
+            break;
+        default:
+            return;
+    }
+
+
+
 }
 
 // 槽函数：pushButtonAddLine 按下
@@ -83,6 +113,13 @@ void MainWindow::addLine() {
     }
 }
 
+// 槽函数：pushButtonAddStation 按下
+void MainWindow::addStation() {
+    QString newStationName = manageLines->ui->lineEditStationName->text();
+    if (newStationName.isEmpty()) {
+        QMessageBox::warning(this, tr("添加站点"), tr("站点名称不能为空"), QMessageBox::Ok);
+    }
+}
 
 // 函数：初始化状态栏
 void MainWindow::initStatus() {
@@ -122,7 +159,7 @@ void MainWindow::updateTransferQueryInfo() {
 // 槽函数：ComboBoxStartLine 索引改变
 void MainWindow::transferStartLineChanged(QString lineName) {
     ui->comboBoxStartStation->clear();
-    QVector<QString> stationNames = subwayGraph->getLine(subwayGraph->getLineID(lineName)).getAllStationNames();
+    QVector<QString> stationNames = subwayGraph->getAllStationNamesByLineName(std::move(lineName));
     for (auto& stationName : stationNames) {
         ui->comboBoxStartStation->addItem(stationName);
     }
@@ -131,18 +168,18 @@ void MainWindow::transferStartLineChanged(QString lineName) {
 // 槽函数：ComboBoxEndLine 索引改变
 void MainWindow::transferEndLineChanged(QString lineName) {
     ui->comboBoxEndStation->clear();
-    QVector<QString> stationNames = subwayGraph->getLine(subwayGraph->getLineID(lineName)).getAllStationNames();
+    QVector<QString> stationNames = subwayGraph->getAllStationNamesByLineName(std::move(lineName));
     for (auto& stationName : stationNames) {
         ui->comboBoxEndStation->addItem(stationName);
     }
 }
 
-// 函数：根据线路ID数组计算混合颜色
-QColor MainWindow::getLinesColor(const QVector<QString> &lineIDs) {
+// 函数：根据线路名数组计算混合颜色
+QColor MainWindow::getLinesColor(const QVector<QString> &lineNames) {
     QColor color1 = QColor(255, 255, 255);
     QColor color2;
-    for (int i = 0; i < lineIDs.size(); ++i) {
-        color2 = subwayGraph->getLineColor(lineIDs[i]);
+    for (int i = 0; i < lineNames.size(); ++i) {
+        color2 = subwayGraph->getLineColor(lineNames[i]);
         color1.setRed(color1.red() * color2.red() / 255);
         color1.setGreen(color1.green() * color2.green() / 255);
         color1.setBlue(color1.blue() * color2.blue() / 255);
@@ -152,24 +189,24 @@ QColor MainWindow::getLinesColor(const QVector<QString> &lineIDs) {
 
 // 函数：根据站点计算混合颜色
 QColor MainWindow::getStationColor(Station& station) {
-    return getLinesColor(subwayGraph->getStationLineID(station));
+    return getLinesColor(station.lineNames);
 }
 
 // 函数：根据连接数组绘制地铁图的连接
-void MainWindow::drawEdge(QVector<Edge>& allEdges) {
-    for (int i = 0; i < allEdges.size(); ++i) {
-        QString station1 = allEdges[i].first;
-        QString station2 = allEdges[i].second;
+void MainWindow::drawEdge(QVector<Edge> edges) {
+    for (int i = 0; i < edges.size(); ++i) {
+        Station station1 = edges[i].station1;
+        Station station2 = edges[i].station2;
 
         // 获取两个站点间所有线路，渲染边的颜色
-        QVector<QString> commonLineIDs = subwayGraph->getCommonLineIDs(station1, station2);
-        QColor color = getLinesColor(commonLineIDs);
-        QString tip = "途径：" + subwayGraph->getStationName(station1) + " -- " + subwayGraph->getStationName(station2) + "\n"
-                + subwayGraph->getStationLineInfo(commonLineIDs);
+        QVector<QString> commonLineNames = station1.getCommonLineNames(station2);
+        QColor color = getLinesColor(commonLineNames);
+        QString tip = "途径：" + station1.name + " -- " + station2.name + "\n"
+                      + subwayGraph->toLineNamesToString(commonLineNames);
 
         // 获取站点的场景坐标
-        QPointF station1ScenePos = getStationScenePos(subwayGraph->getStationCoord(station1));
-        QPointF station2ScenePos = getStationScenePos(subwayGraph->getStationCoord(station2));
+        QPointF station1ScenePos = getStationScenePos(station1.getCoord());
+        QPointF station2ScenePos = getStationScenePos(station2.getCoord());
 
         // 直线 Item
         QGraphicsLineItem* edgeItem = new QGraphicsLineItem;
@@ -188,14 +225,14 @@ void MainWindow::drawEdge(QVector<Edge>& allEdges) {
 }
 
 // 函数：根据站点数组绘制地铁图的站点
-void MainWindow::drawStation(QVector<Station> &allStations) {
-    for (int i = 0; i < allStations.size(); ++i) {
-        QString name = subwayGraph->getStationName(allStations[i]);
-        QPointF coord = subwayGraph->getStationCoord(allStations[i]);
+void MainWindow::drawStation(QVector<Station> stations) {
+    for (int i = 0; i < stations.size(); ++i) {
+        QString name = stations[i].name;
+        QPointF coord = stations[i].getCoord();
         QString tip = "站名：" + name + "\n"
                 + "经度：" + QString::number(coord.x(), 'f', 7) + "\n"
                 + "纬度：" + QString::number(coord.y(), 'f', 7) + "\n"
-                + "经过线路：" + subwayGraph->getStationLineInfo(allStations[i]);
+                + "经过线路：" + stations[i].getLineInfo();
         QPointF stationScenePos = getStationScenePos(coord);
 
         // 椭圆或圆形 Item
@@ -205,7 +242,7 @@ void MainWindow::drawStation(QVector<Station> &allStations) {
         // 设置椭圆的中心位置
         stationItem->setPos(stationScenePos);
         // 设置线条颜色和宽度
-        stationItem->setPen(getStationColor(allStations[i]));
+        stationItem->setPen(getStationColor(stations[i]));
         stationItem->setBrush(QColor(QRgb(0xffffff)));
         // 设置鼠标悬停样式：手指
         stationItem->setCursor(Qt::WhatsThisCursor);
@@ -283,10 +320,8 @@ void MainWindow::on_action_shrink_triggered() {
 void MainWindow::on_action_linemap_triggered()
 {
     scene->clear();
-    QVector<Edge> allEdges = subwayGraph->getAllEdges();
-    QVector<Station> allStations = subwayGraph->getAllStations();
-    drawEdge(allEdges);
-    drawStation(allStations);
+    drawEdge(subwayGraph->getAllEdges());
+    drawStation(subwayGraph->getAllStations());
 }
 
 // 事件过滤器

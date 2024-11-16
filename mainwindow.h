@@ -32,8 +32,16 @@ private slots:
     void transferEndLineChanged(QString);
     // 槽函数：更新状态栏时间
     void updateTime();
+    // 槽函数：pushButtonTransfer 按下
+    void transfer();
     // 槽函数：pushButtonAddLine 按下
     void addLine();
+    // 槽函数：pushButtonAddStation 按下
+    void addStation();
+    // 槽函数：pushButtonAddConnect 按下
+//    void addConnect();
+//    // 槽函数：pushButtonAddByText 按下
+//    void addByText();
     // 槽函数：action_addall 添加所有
     void on_action_addall_triggered();
     // 槽函数：aciton_addline 添加线路
@@ -71,9 +79,9 @@ private:
     // 函数：更新换乘信息
     void updateTransferQueryInfo();
     // 函数：根据连接数组绘制地铁图的连接
-    void drawEdge(QVector<Edge>& allEdges);
+    void drawEdge(QVector<Edge> edges);
     // 函数：根据站点数组绘制地铁图的站点
-    void drawStation(QVector<Station>& allStations);
+    void drawStation(QVector<Station> stations);
     // 函数：根据线路ID数组计算混合颜色
     QColor getLinesColor(const QVector<QString>& lineIDs);
     // 函数：根据站点的地理坐标计算站点的场景坐标
