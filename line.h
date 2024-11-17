@@ -11,10 +11,8 @@
 class Line {
 public:
     Line();
-    Line(QString lineName, QColor lineColor);
-
-    // 获取所有站点名
-    QVector<QString> getAllStationNames();
+    // 拷贝构造函数
+    Line& operator=(const Line& other);
 
     int index;                              // 索引
     QString id;                             // ID

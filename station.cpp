@@ -9,7 +9,7 @@ Station::Station() {
 
 }
 
-// 赋值构造符重载
+// 赋值运算符重载
 Station& Station::operator=(const Station &other) {
     if (this != &other) {
         id = other.id;

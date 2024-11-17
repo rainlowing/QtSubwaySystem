@@ -22,14 +22,14 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow() override;
 
 private slots:
     // 槽函数：ComboBoxStartLine 索引改变
-    void transferStartLineChanged(QString);
+    void transferStartLineChanged(const QString&);
     // 槽函数：ComboBoxEndLine 索引改变
-    void transferEndLineChanged(QString);
+    void transferEndLineChanged(const QString&);
     // 槽函数：更新状态栏时间
     void updateTime();
     // 槽函数：pushButtonTransfer 按下
@@ -72,6 +72,9 @@ private:
     QLabel* labelTime;
     QLabel* labelHint;
 
+    // 计时器
+    QTimer* timer{};
+
     // 函数：连接槽函数
     void initConnect();
     // 函数：初始化状态栏 StatusBar
@@ -79,13 +82,13 @@ private:
     // 函数：更新换乘信息
     void updateTransferQueryInfo();
     // 函数：根据连接数组绘制地铁图的连接
-    void drawEdge(QVector<Edge> edges);
+    void drawEdge(const QVector<Edge>& edges);
     // 函数：根据站点数组绘制地铁图的站点
     void drawStation(QVector<Station> stations);
     // 函数：根据线路ID数组计算混合颜色
     QColor getLinesColor(const QVector<QString>& lineIDs);
     // 函数：根据站点的地理坐标计算站点的场景坐标
-    QPointF getStationScenePos(QPointF coord);
+    static QPointF getStationScenePos(QPointF coord);
     // 函数：根据站点计算混合颜色
     QColor getStationColor(Station& station);
     // 事件过滤器
@@ -98,7 +101,7 @@ private:
 #define EDGE_PEN_WIDTH 2                                // 线条 Item 宽度
 #define NODE_HALF_WIDTH 3                               // 站点大小
 
-#define SCENE_WIDTH MARGIN * 2 + NET_WIDTH              // 场景宽度
-#define SCENE_HEIGHT MARGIN * 2 + NET_HEIGHT            // 场景高度
+#define SCENE_WIDTH (MARGIN * 2 + NET_WIDTH)              // 场景宽度
+#define SCENE_HEIGHT (MARGIN * 2 + NET_HEIGHT)            // 场景高度
 };
 #endif // MAINWINDOW_H

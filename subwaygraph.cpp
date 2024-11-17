@@ -12,7 +12,7 @@ SubwayGraph::SubwayGraph() {
 }
 
 // 函数：读取文件数据
-bool SubwayGraph::readFileData(QString fileName) {
+bool SubwayGraph::readFileData(const QString& fileName) {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
@@ -41,14 +41,14 @@ bool SubwayGraph::readFileData(QString fileName) {
             in >> station.id >> station.name >> longitudeAndLatitude;
             // 如果该站点已经在其他线路中被添加过，则直接用哈希表中存储的值进行操作
             if (isStationExist(station.name)) {
-                Station* exStation = getStationByName(station.name);
+                Station* exStation = getStationPtrByName(station.name);
                 // 站点和线路互相添加信息
                 line.stationNames.push_back(exStation->name);
                 exStation->lineNames.push_back(line.name);
                 // 如果 i > 0，那么当前站点和前一个站点建立连接关系
                 if (i > 0) {
-                    edges.push_back(Edge(*exStation, lastStation, line));
-                    edges.push_back(Edge(lastStation, *exStation, line));
+                    edges.push_back(new Edge(*exStation, lastStation, line));
+                    edges.push_back(new Edge(lastStation, *exStation, line));
                 }
                 lastStation = *exStation;
             } else {
@@ -59,13 +59,13 @@ bool SubwayGraph::readFileData(QString fileName) {
                 station.lineNames.push_back(line.name);
                 // 如果 i > 0，那么当前站点和前一个站点建立连接关系
                 if (i > 0) {
-                    edges.push_back(Edge(station, lastStation, line));
-                    edges.push_back(Edge(lastStation, station, line));
+                    edges.push_back(new Edge(station, lastStation, line));
+                    edges.push_back(new Edge(lastStation, station, line));
                 }
                 lastStation = station;
                 // 存储站点
-                stations.push_back(station);
-                stationHash[station.name] = &stations.last();
+                stations.push_back(new Station(station));
+                stationHash[station.name] = stations.last();
                 // 记录边界经纬度
                 if (station.longitude > Station::maxLongitude) {
                     Station::maxLongitude = station.longitude;
@@ -82,9 +82,9 @@ bool SubwayGraph::readFileData(QString fileName) {
         }
 
         // 存储线路
-        if (isLineExist(line.name)) {
-            lines.push_back(line);
-            lineHash[line.name] = &lines.last();
+        if (!isLineExist(line.name)) {
+            lines.push_back(new Line(line));
+            lineHash[line.name] = lines.last();
         }
         in.readLine();
     }
@@ -99,69 +99,71 @@ bool SubwayGraph::readFileData(QString fileName) {
 void SubwayGraph::makeGraph() {
     graph.clear();
     for (const auto& edge : edges) {
-        graph[edge.station1.name].push_back({edge.station2.name, edge.dist});
+        graph[edge->station1.name].push_back({edge->station2.name, edge->dist});
     }
 }
 
 // 函数：获取所有线路名
 QVector<QString> SubwayGraph::getAllLineNames() {
-    QVector<QString> lineNames;
-    for (const auto& lineName : lineHash.keys()) {
-        lineNames.push_back(lineName);
-    }
-    return  lineNames;
+    return lineHash.keys();
 }
 
 // 函数：获取所有线路
 QVector<Line> SubwayGraph::getAllLines() {
+    QVector<Line> lines;
+    for (const Line* line : this->lines) {
+        if (line != nullptr) {
+            lines.push_back(*line);
+        }
+    }
     return lines;
-}
-
-// 函数：根据线路名获取该线路上所有线路名数组
-QVector<QString> SubwayGraph::getAllStationNamesByLineName(QString lineName) {
-    return lineHash[lineName]->getAllStationNames();
 }
 
 // 函数：获取所有站点
 QVector<Station> SubwayGraph::getAllStations() {
+    QVector<Station> stations;
+    for (const Station* station : this->stations) {
+        if (station != nullptr) {
+            stations.push_back(*station);
+        }
+    }
     return stations;
 }
 
 // 函数：获取所有连接
 QVector<Edge> SubwayGraph::getAllEdges() {
+    QVector<Edge> edges;
+    for (const Edge* edge : this->edges) {
+        if (edge != nullptr) {
+            edges.push_back(*edge);
+        }
+    }
     return edges;
 }
 
 // 函数：获取最小经纬度
 QPointF SubwayGraph::getMinCoord() {
-    return QPointF(Station::minLongitude, Station::minLatitude);
+    return {Station::minLongitude, Station::minLatitude};
 }
 
 // 函数：获取最大经纬度
-QPointF SubwayGraph::getmaxCoord() {
-    return QPointF(Station::maxLongitude, Station::maxLatitude);
+QPointF SubwayGraph::getMaxCoord() {
+    return {Station::maxLongitude, Station::maxLatitude};
 }
 
-// 函数：根据站点ID获取站点名
-QString SubwayGraph::getStationNameByID(QString stationID) {
-    QString name;
-    for (const auto& station : stations) {
-        if (station.id == stationID) {
-            name = station.name;
-            return name;
-        }
-    }
-    return "";
+// 函数：根据线路名获取线路
+Line SubwayGraph::getLineByName(const QString& lineName) {
+    return *lineHash.value(lineName);
 }
 
 // 函数：根据线路名获取线路颜色
-QColor SubwayGraph::getLineColor(QString lineName) {
+QColor SubwayGraph::getLineColor(const QString& lineName) {
     return lineHash[lineName]->color;
 }
 
 
 // 函数：将线路名数组转换为字符串
-QString SubwayGraph::toLineNamesToString(QVector<QString> lineNames) {
+QString SubwayGraph::toLineNamesToString(const QVector<QString>& lineNames) {
     QString lineInfo;
     for (auto& lineName : lineNames) {
         lineInfo += " ";
@@ -171,23 +173,23 @@ QString SubwayGraph::toLineNamesToString(QVector<QString> lineNames) {
     return lineInfo;
 }
 
+// 函数：根据站点名获取站点的指针
+Station *SubwayGraph::getStationPtrByName(const QString &stationName) {
+    return stationHash.value(stationName);
+}
+
 // 函数：根据站点名获取站点
-Station *SubwayGraph::getStationByName(QString stationName) {
-    if (stationHash.contains(stationName)) {
-        Station* ptr = stationHash.value(stationName);
-        return ptr;
-//        return stationHash.value(stationName);
-    }
-    return nullptr;
+Station SubwayGraph::getStationByName(const QString& stationName) {
+    return *stationHash.value(stationName);
 }
 
 // 函数：根据名称查找线路是否已存在
-bool SubwayGraph::isLineExist(QString lineName) {
+bool SubwayGraph::isLineExist(const QString& lineName) {
     return lineHash.contains(lineName);
 }
 
 // 函数：根据名称查找站点是否已存在
-bool SubwayGraph::isStationExist(QString stationName) {
+bool SubwayGraph::isStationExist(const QString& stationName) {
     return stationHash.contains(stationName);
 }
 
@@ -197,7 +199,7 @@ void SubwayGraph::addLine(QString lineName, QColor lineColor) {
 }
 
 // 函数：计算搭乘时间最短路线
-bool SubwayGraph::leastTime(QString s1Name, QString s2Name, QVector<Station>& resS, QVector<Edge>& resE) {
+bool SubwayGraph::leastTime(const QString& s1Name, const QString& s2Name, QVector<Station>& resS, QVector<Edge>& resE) {
     resS.clear();
     resE.clear();
 
@@ -206,7 +208,8 @@ bool SubwayGraph::leastTime(QString s1Name, QString s2Name, QVector<Station>& re
     QHash<QString, double> dist;        // 哈希，键为目标站点名，值为起始站到目标站点的最短距离
     QHash<QString, QString> prev;       // 哈希，键为要到达目标站点名的前驱站点名，值为目标站点名
 
-    for (const auto& node : graph.keys()) {
+    QVector<QString> keys = graph.keys();
+    for (const QString& node : keys) {
         dist[node] = INF;
     }
     dist[s1Name] = 0;
@@ -221,7 +224,7 @@ bool SubwayGraph::leastTime(QString s1Name, QString s2Name, QVector<Station>& re
         if (curDist > dist[curNode]) continue;  // 去除堆中过时的信息
 
         for (const auto& [neighbor, weight] : graph[curNode]) {
-            int newDist = dist[curNode] + curDist;
+            double newDist = dist[curNode] + curDist;
             if (dist[neighbor] > newDist) {
                 dist[neighbor] = newDist;
                 prev[neighbor] = curNode;
@@ -238,5 +241,17 @@ bool SubwayGraph::leastTime(QString s1Name, QString s2Name, QVector<Station>& re
 //            resS.push_back(stations);
         return true;
         }
+    }
+}
+
+SubwayGraph::~SubwayGraph() {
+    for (Line* line : lines) {
+        delete line;
+    }
+    for (Station* station : stations) {
+        delete station;
+    }
+    for (Edge* edge : edges) {
+        delete edge;
     }
 }

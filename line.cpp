@@ -8,11 +8,16 @@ Line::Line() {
 
 }
 
-Line::Line(QString lineName, QColor lineColor) : name(lineName), color(lineColor) {
-
-}
-
-// 函数：获取所有站点名
-QVector<QString> Line::getAllStationNames() {
-    return stationNames;
+// 赋值运算符重载
+Line& Line::operator=(const Line& other) {
+    if (this != &other) {
+        index = other.index;
+        name = other.name;
+        color = other.color;
+        start = other.start;
+        end = other.end;
+        total = other.total;
+        stationNames = other.stationNames;
+    }
+    return *this;
 }
