@@ -48,7 +48,9 @@ bool SubwayGraph::readFileData(const QString& fileName) {
                 // 如果 i > 0，那么当前站点和前一个站点建立连接关系
                 if (i > 0) {
                     edges.push_back(new Edge(*exStation, lastStation, line));
+                    edgeHash.insert({exStation->name, lastStation.name}, edges.last());
                     edges.push_back(new Edge(lastStation, *exStation, line));
+                    edgeHash.insert({lastStation.name, exStation->name}, edges.last());
                 }
                 lastStation = *exStation;
             } else {
@@ -60,7 +62,9 @@ bool SubwayGraph::readFileData(const QString& fileName) {
                 // 如果 i > 0，那么当前站点和前一个站点建立连接关系
                 if (i > 0) {
                     edges.push_back(new Edge(station, lastStation, line));
+                    edgeHash.insert({station.name, lastStation.name}, edges.last());
                     edges.push_back(new Edge(lastStation, station, line));
+                    edgeHash.insert({lastStation.name, station.name}, edges.last());
                 }
                 lastStation = station;
                 // 存储站点
@@ -83,6 +87,7 @@ bool SubwayGraph::readFileData(const QString& fileName) {
 
         // 存储线路
         if (!isLineExist(line.name)) {
+            lineNames.push_back(line.name);
             lines.push_back(new Line(line));
             lineHash[line.name] = lines.last();
         }
@@ -105,7 +110,7 @@ void SubwayGraph::makeGraph() {
 
 // 函数：获取所有线路名
 QVector<QString> SubwayGraph::getAllLineNames() {
-    return lineHash.keys();
+    return lineNames;
 }
 
 // 函数：获取所有线路
@@ -198,15 +203,66 @@ void SubwayGraph::addLine(QString lineName, QColor lineColor) {
 
 }
 
+// 函数：计算途径站数最少路线
+bool SubwayGraph::leastStations(const QString& s1Name, const QString& s2Name, QVector<Station>& tranStasions, QVector<Edge>& tranEdges) {
+    tranStasions.clear();
+    tranEdges.clear();
+
+    const int INF = 1e9;
+
+    QHash<QString, int> dist;           // 哈希，键为目标站点名，值为起始站到目标站所经过的站点
+    QHash<QString, QString> prev;       // 哈希，键为要到达的目标站点的前驱站点名，值为目标站点名
+
+    QVector<QString> keys = graph.keys();
+    for (const QString& node : keys) {
+        dist[node] = INF;
+    }
+    dist[s1Name] = 0;
+
+    std::priority_queue<QPair<int, QString>, QVector<QPair<int, QString>>, std::greater<>> pq;
+    pq.emplace(0, s1Name);
+
+    while (!pq.empty()) {
+        auto [curDist, curNode] = pq.top();
+        pq.pop();
+
+        if (curDist > dist[curNode]) continue;
+
+        for (const auto& neighbor : graph[curNode]) {
+            int newDist = dist[curNode] + 1;
+            if (dist[neighbor.first] > newDist) {
+                dist[neighbor.first] = newDist;
+                prev[neighbor.first] = curNode;
+                pq.emplace(newDist, neighbor.first);
+            }
+        }
+    }
+
+    // 还原路径
+    if (dist[s2Name] == INF) {
+        return false;
+    } else {
+        for (QString at = s2Name; at != ""; at = prev[at]) {
+            tranStasions.push_back(getStationByName(at));
+            if (prev[at] != "") {
+                tranEdges.push_back(getEdgeByTwoStationNames(prev[at], at));
+            }
+        }
+        std::reverse(tranStasions.begin(), tranStasions.end());
+        std::reverse(tranEdges.begin(), tranEdges.end());
+        return true;
+    }
+}
+
 // 函数：计算搭乘时间最短路线
-bool SubwayGraph::leastTime(const QString& s1Name, const QString& s2Name, QVector<Station>& resS, QVector<Edge>& resE) {
-    resS.clear();
-    resE.clear();
+bool SubwayGraph::leastTime(const QString& s1Name, const QString& s2Name, QVector<Station>& tranStasions, QVector<Edge>& tranEdges) {
+    tranStasions.clear();
+    tranEdges.clear();
 
     const double INF = 1e9;             // 定义无法到达的距离
 
     QHash<QString, double> dist;        // 哈希，键为目标站点名，值为起始站到目标站点的最短距离
-    QHash<QString, QString> prev;       // 哈希，键为要到达目标站点名的前驱站点名，值为目标站点名
+    QHash<QString, QString> prev;       // 哈希，键为要到达目标站点的前驱站点名，值为目标站点名
 
     QVector<QString> keys = graph.keys();
     for (const QString& node : keys) {
@@ -224,7 +280,7 @@ bool SubwayGraph::leastTime(const QString& s1Name, const QString& s2Name, QVecto
         if (curDist > dist[curNode]) continue;  // 去除堆中过时的信息
 
         for (const auto& [neighbor, weight] : graph[curNode]) {
-            double newDist = dist[curNode] + curDist;
+            double newDist = dist[curNode] + weight;
             if (dist[neighbor] > newDist) {
                 dist[neighbor] = newDist;
                 prev[neighbor] = curNode;
@@ -238,10 +294,20 @@ bool SubwayGraph::leastTime(const QString& s1Name, const QString& s2Name, QVecto
         return false;
     } else {
         for (QString at = s2Name; at != ""; at = prev[at]) {
-//            resS.push_back(stations);
-        return true;
+            tranStasions.push_back(getStationByName(at));
+            if (prev[at] != "") {
+                tranEdges.push_back(getEdgeByTwoStationNames(prev[at], at));
+            }
         }
+        std::reverse(tranStasions.begin(), tranStasions.end());
+        std::reverse(tranEdges.begin(), tranEdges.end());
+        return true;
     }
+}
+
+// 函数：根据两个站点的站点名查找连接
+Edge SubwayGraph::getEdgeByTwoStationNames(const QString& startStationName, const QString& endStationName) {
+    return *edgeHash.value({startStationName, endStationName});
 }
 
 SubwayGraph::~SubwayGraph() {
@@ -255,3 +321,4 @@ SubwayGraph::~SubwayGraph() {
         delete edge;
     }
 }
+

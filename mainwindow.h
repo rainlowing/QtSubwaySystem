@@ -67,6 +67,9 @@ private:
     SubwayGraph* subwayGraph;                   // 后端管理类
     AppHelp* appHelp;                           // 帮助显示类
 
+    // 场景遮罩
+    QGraphicsRectItem* mask;                    // 场景遮罩
+
     // 状态栏内标签
     QLabel* labelInfo;
     QLabel* labelTime;
@@ -82,15 +85,19 @@ private:
     // 函数：更新换乘信息
     void updateTransferQueryInfo();
     // 函数：根据连接数组绘制地铁图的连接
-    void drawEdge(const QVector<Edge>& edges);
+    void drawEdge(const QVector<Edge>&);
     // 函数：根据站点数组绘制地铁图的站点
-    void drawStation(QVector<Station> stations);
+    void drawStation(const QVector<Station>&);
+    // 函数：根据查询结果绘制地铁图
+    void drawByQueryResult(const QVector<Edge>&, const QVector<Station>&);
+    // 函数：根据查询结果输出文本
+    void updateResultText(const QVector<Edge>&, const QVector<Station>&, int);
     // 函数：根据线路ID数组计算混合颜色
     QColor getLinesColor(const QVector<QString>& lineIDs);
     // 函数：根据站点的地理坐标计算站点的场景坐标
     static QPointF getStationScenePos(QPointF coord);
     // 函数：根据站点计算混合颜色
-    QColor getStationColor(Station& station);
+    QColor getStationColor(const Station& station);
     // 事件过滤器
     bool eventFilter(QObject* object, QEvent* event) override;
 
@@ -103,5 +110,7 @@ private:
 
 #define SCENE_WIDTH (MARGIN * 2 + NET_WIDTH)              // 场景宽度
 #define SCENE_HEIGHT (MARGIN * 2 + NET_HEIGHT)            // 场景高度
+
+#define SPEED 40
 };
 #endif // MAINWINDOW_H

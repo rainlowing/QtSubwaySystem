@@ -27,7 +27,7 @@ double Station::toRadians(double degree) {
 }
 
 // 函数：计算站点间地理直线距离，使用 Vincenty 方法
-double Station::distance(Station other) {
+double Station::distance(const Station& other) const {
     // 角度转弧度
     double long1 = toRadians(longitude);
     double lat1 = toRadians(latitude);
@@ -47,12 +47,12 @@ double Station::distance(Station other) {
 }
 
 // 函数：获取站点的地理点
-QPointF Station::getCoord() {
+QPointF Station::getCoord() const {
     return QPointF(longitude, latitude);
 }
 
 // 函数：获取站点所属线路，并转换为字符串
-QString Station::getLineInfo() {
+QString Station::getLineInfo() const {
     QString lineInfo;
     for (auto& lineName : lineNames) {
         lineInfo += " ";

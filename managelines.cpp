@@ -1,7 +1,6 @@
 #include "managelines.h"
 #include "ui_managelines.h"
 
-#include <QMessageBox>
 #include <QColorDialog>
 
 ManageLines::ManageLines(QWidget *parent)

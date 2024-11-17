@@ -4,9 +4,28 @@
 #include <QPoint>
 #include <QApplication>
 
+GraphicsViewZoom::GraphicsViewZoom() {
+
+}
+
 GraphicsViewZoom::GraphicsViewZoom(QGraphicsView* view)
     : QObject(view), view(view)
 {
+    // 安装事件过滤器
+    view->viewport()->installEventFilter(this);
+    // 鼠标跟踪生效，即使不按下也会触发 MouseMove 事件
+    view->setMouseTracking(true);
+    // 快捷键设置为 Ctrl
+    modifiers = Qt::ControlModifier;
+    // 缩放因子基数
+    zoomFactorBase = 1.0015;
+    // 设置视图可鼠标拖拽移动
+    view->setDragMode(QGraphicsView::ScrollHandDrag);
+}
+
+// 函数：设置 view
+void GraphicsViewZoom::setView(QGraphicsView *view) {
+    this->view = view;
     // 安装事件过滤器
     view->viewport()->installEventFilter(this);
     // 鼠标跟踪生效，即使不按下也会触发 MouseMove 事件

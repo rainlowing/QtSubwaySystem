@@ -14,19 +14,19 @@ public:
     Station& operator=(const Station& other);
 
     // 函数：将角度转换为弧度
-    double toRadians(double degree);
+    static double toRadians(double degree);
     // 函数：计算站点间地理直线距离
-    double distance(Station other);
+    double distance(const Station& other) const;
     // 函数：获取站点的地理点
-    QPointF getCoord();
+    QPointF getCoord() const;
     // 函数：获取站点所属线路名数组，并转换为字符串
-    QString getLineInfo();
+    QString getLineInfo() const;
     // 函数：获取两个站点的共同所属线路名数组
     QVector<QString> getCommonLineNames(Station& other);
 
     QString id;                         // ID
     QString name;                       // 名称
-    double longitude, latitude;         // 经纬度
+    double longitude{}, latitude{};     // 经纬度
     QVector<QString> lineNames;         // 所属线路名，同一站点可能属于多条线路
 
     static double minLongitude;         // 最小经度

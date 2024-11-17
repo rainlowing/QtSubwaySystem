@@ -9,7 +9,10 @@ class GraphicsViewZoom : public QObject
 {
     Q_OBJECT
 public:
+    explicit GraphicsViewZoom();
     explicit GraphicsViewZoom(QGraphicsView* view);
+
+    void setView(QGraphicsView*);
 
 private:
     QGraphicsView* view;

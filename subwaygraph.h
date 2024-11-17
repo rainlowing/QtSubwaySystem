@@ -53,15 +53,18 @@ public:
     bool isLineExist(const QString& lineName);
     // 函数：根据名称查找站点是否已存在
     bool isStationExist(const QString& stationName);
+    // 函数：根据两个站点的站点名查找连接
+    Edge getEdgeByTwoStationNames(const QString&, const QString&);
     // 函数：添加一条线路
     void addLine(QString lineName, QColor lineColor);
     // 函数：计算途径站数最少路线
-    bool leastStations();
+    bool leastStations(const QString&, const QString&, QVector<Station>&, QVector<Edge>&);
     // 函数：计算搭乘时间最短路线
-    bool leastTime(const QString& s1Name, const QString& s2Name, QVector<Station>& resS, QVector<Edge>& resE);
+    bool leastTime(const QString&, const QString&, QVector<Station>&, QVector<Edge>&);
 
 
 private:
+    QVector<QString> lineNames;                             // 数组，便于线路名有序输出
     QVector<Line*> lines;                                   // 数组，存储所有线路
     QHash<QString, Line*> lineHash;                         // 哈希表，线路名 -> 线路
 
@@ -69,6 +72,7 @@ private:
     QHash<QString, Station*> stationHash;                   // 哈希表，站点名 -> 站点
 
     QVector<Edge*> edges;                                   // 数组，存储所有连接
+    QHash<QPair<QString, QString>, Edge*> edgeHash;         // 哈希表，站点名元素对 -> 连接
 
     // 图，键为当前站点名，值为键值对数组，其中键为邻接站点名，值为当前站点到邻接站点的距离
     QHash<QString, QVector<QPair<QString, double>>> graph;

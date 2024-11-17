@@ -14,6 +14,7 @@
         <file>icon/station.png</file>
         <file>icon/subway.png</file>
         <file>icon/text.png</file>
+        <file>icon/repost.svg</file>
     </qresource>
     <qresource prefix="/html">
         <file>html/helpAddByText.html</file>
