@@ -61,6 +61,8 @@ public:
     bool leastStations(const QString&, const QString&, QVector<Station>&, QVector<Edge>&);
     // 函数：计算搭乘时间最短路线
     bool leastTime(const QString&, const QString&, QVector<Station>&, QVector<Edge>&);
+    // 函数：搜索站点名
+    QVector<QString> searchStationName(const QString &);
 
 
 private:

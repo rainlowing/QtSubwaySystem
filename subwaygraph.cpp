@@ -5,6 +5,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QRegularExpression>
 
 // 构造函数
 SubwayGraph::SubwayGraph() {
@@ -308,6 +309,22 @@ bool SubwayGraph::leastTime(const QString& s1Name, const QString& s2Name, QVecto
 // 函数：根据两个站点的站点名查找连接
 Edge SubwayGraph::getEdgeByTwoStationNames(const QString& startStationName, const QString& endStationName) {
     return *edgeHash.value({startStationName, endStationName});
+}
+
+// 函数：搜索站点名
+QVector<QString> SubwayGraph::searchStationName(const QString & name) {
+    QVector<QString> keys = stationHash.keys();
+    if (name.isEmpty()) {
+        return keys;
+    }
+    QRegularExpression regex(name, QRegularExpression::CaseInsensitiveOption);
+    QVector<QString> result;
+    for (const auto& key : keys) {
+        if (regex.match(key).hasMatch()) {
+            result.push_back(key);
+        }
+    }
+    return result;
 }
 
 SubwayGraph::~SubwayGraph() {

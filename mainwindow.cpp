@@ -50,19 +50,19 @@ MainWindow::MainWindow(QWidget *parent)
     initStatus();
 
     // 读取内置数据
-    bool flag = subwayGraph->readFileData(":/data/data/subway_wuhan.txt");
+    bool flag = subwayGraph->readFileData(":/data/data/subway_shanghai.txt");
     if (!flag) {
         QMessageBox::warning(this, tr("读取数据错误"), tr("\n将无法展示内置线路！"), QMessageBox::Ok);
     }
 
     // 根据读取得到的线路数据更新 ui
     updateTransferQueryInfo();
+    // 初始化搜索框
+    searchStation();
     // 连接槽函数
     initConnect();
     // 绘制地铁图
     on_action_linemap_triggered();
-
-
 }
 
 // 函数：连接槽函数
@@ -70,6 +70,9 @@ void MainWindow::initConnect() {
     connect(ui->comboBoxStartLine, SIGNAL(currentTextChanged(QString)), this, SLOT(transferStartLineChanged(QString)));
     connect(ui->comboBoxEndLine, SIGNAL(currentTextChanged(QString)), this, SLOT(transferEndLineChanged(QString)));
     connect(ui->pushButtonTransfer, SIGNAL(clicked(bool)), this, SLOT(transfer()));
+    connect(ui->pushButtonSearchStation, SIGNAL(clicked(bool)), this, SLOT(mapToStation()));
+    connect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
+    connect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
 
     connect(manageLines->ui->pushButtonAddLine, SIGNAL(clicked(bool)), this, SLOT(addLine()));
     timer->start(1000);
@@ -81,6 +84,35 @@ void MainWindow::updateTime() {
     QDateTime time = QDateTime::currentDateTime();
     QString str = time.toString("yyyy-MM-dd hh:mm:ss");
     labelTime->setText(str);
+}
+
+// 槽函数：lineEditSearchStation 被编辑
+void MainWindow::searchStation() {
+    QVector<QString> results = subwayGraph->searchStationName(ui->comboBoxSearchStation->currentText());
+    for (auto& result : results) {
+        ui->comboBoxSearchStation->addItem(result);
+    }
+}
+
+// 槽函数：pushButtonSearchStation 按下
+void MainWindow::mapToStation() {
+    QString name = ui->comboBoxSearchStation->currentText();
+    Station station = subwayGraph->getStationByName(name);
+    ui->graphicsView->centerOn(getStationScenePos({station.longitude, station.latitude}));
+}
+
+// 槽函数：pushButtonReset 按下
+void MainWindow::reset() {
+    if (mask->isVisible()) {
+        QList<QGraphicsItem*> items = scene->items();
+        for (auto item : items) {
+            if (item->zValue() >= mask->zValue() && item != mask) {
+                delete item;
+            }
+        }
+    }
+    mask->setVisible(false);
+    ui->textBrowser->clear();
 }
 
 // 槽函数：pushButtonTransfer 按下
@@ -301,13 +333,7 @@ void MainWindow::drawStation(const QVector<Station>& stations) {
 
 // 函数：根据查询结果绘制地铁图
 void MainWindow::drawByQueryResult(const QVector<Edge> & edges, const QVector<Station> & stations) {
-    // 删除之前的查询结果
-    QList<QGraphicsItem*> items =  scene->items();
-    for (auto item : items) {
-        if (item->zValue() >= mask->zValue()) {
-            if (item != mask) delete item;
-        }
-    }
+    reset();
     // 场景遮罩
     if (!mask->isVisible()) mask->setVisible(true);
     drawStation(stations);
@@ -330,14 +356,18 @@ void MainWindow::updateResultText(const QVector<Edge> &edges, const QVector<Stat
             time *= 60;
             text = tr("以下路线时间最短，大约需要") + QString::number(time, 'f',0) + tr("分钟\n（在时速40km/h下）");
             break;
-        defalut:
+        default:
             return;
     }
     text += "\n";
     for (int i = 0; i < stations.size(); ++i) {
-        text += stations[i].name + "\t    " + stations[i].getLineInfo();
+        text += stations[i].name + "\t    ";
         if (i != stations.size() - 1) {
-            text += "\n  ↓\n";
+            if (i + 1 != stations.size() - 1 && edges[i].line.name != edges[i + 1].line.name) {
+                text += edges[i].line.name + tr("换乘至") + edges[i + 1].line.name + "\n  ↓\n";
+            } else {
+                text += edges[i].line.name + "\n  ↓\n";
+            }
         }
     }
 
@@ -348,8 +378,8 @@ void MainWindow::updateResultText(const QVector<Edge> &edges, const QVector<Stat
 QPointF MainWindow::getStationScenePos(QPointF coord) {
     QPointF minCoord = SubwayGraph::getMinCoord();
     QPointF maxCoord = SubwayGraph::getMaxCoord();
-    double x = (coord.x() - minCoord.x()) / (maxCoord.x() - minCoord.x()) * NET_WIDTH + MARGIN;
-    double y = (maxCoord.y() - coord.y()) / (maxCoord.y() - minCoord.y()) * NET_HEIGHT + MARGIN;
+    double x = (coord.x() - minCoord.x()) / (maxCoord.x() - minCoord.x()) * SCENE_WIDTH + MARGIN;
+    double y = (maxCoord.y() - coord.y()) / (maxCoord.y() - minCoord.y()) * SCENE_HEIGHT + MARGIN;
     return {x, y};
 }
 
