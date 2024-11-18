@@ -13,7 +13,12 @@ SubwayGraph::SubwayGraph() {
 }
 
 // 函数：读取文件数据
-bool SubwayGraph::readFileData(const QString& fileName) {
+bool SubwayGraph::readFileData(const QString& fileName, int reset) {
+    // 是否重置数据
+    if (reset) {
+        deleteAll();
+    }
+
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
@@ -327,7 +332,8 @@ QVector<QString> SubwayGraph::searchStationName(const QString & name) {
     return result;
 }
 
-SubwayGraph::~SubwayGraph() {
+// 函数：删除所有数据
+void SubwayGraph::deleteAll() {
     for (Line* line : lines) {
         delete line;
     }
@@ -337,5 +343,9 @@ SubwayGraph::~SubwayGraph() {
     for (Edge* edge : edges) {
         delete edge;
     }
+}
+
+SubwayGraph::~SubwayGraph() {
+    deleteAll();
 }
 

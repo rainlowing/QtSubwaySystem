@@ -32,6 +32,8 @@ private slots:
     void transferEndLineChanged(const QString&);
     // 槽函数：更新状态栏时间
     void updateTime();
+    // 槽函数：pushButtonSearchCity 按下
+    void searchCity();
     // 槽函数：comboBoxSearchStaiton 被编辑
     void searchStation();
     // 槽函数：pushButtonSearchStation 按下
@@ -109,8 +111,10 @@ private:
 
 
 #define MARGIN 30                                       // 场景对于视口的边距
-#define SCENE_WIDTH 2000                                // 场景宽度
-#define SCENE_HEIGHT 2000                               // 场景高度
+#define GRAPH_WIDTH 2000                                // 地铁图的宽度
+#define GRAPH_HEIGHT 2000                               // 地铁图的高度
+#define SCENE_WIDTH 2060                                // 场景宽度
+#define SCENE_HEIGHT 2060                               // 场景高度
 #define EDGE_PEN_WIDTH 2                                // 线条 Item 宽度
 #define NODE_HALF_WIDTH 3                               // 站点大小
 

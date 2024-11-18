@@ -24,10 +24,7 @@
         <file>html/helpTransfer.html</file>
         <file>html/helpWatch.html</file>
     </qresource>
-    <qresource prefix="/data">
-        <file>data/test.txt</file>
-        <file>data/subway_wuhan.txt</file>
-        <file>data/subway_xianggang.txt</file>
-        <file>data/subway_shanghai.txt</file>
-    </qresource>
+<!--    <qresource prefix="/script">-->
+<!--        <file>scripts/stations.py</file>-->
+<!--    </qresource>-->
 </RCC>

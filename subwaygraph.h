@@ -24,7 +24,7 @@ public:
     ~SubwayGraph();
 
     // 函数：读取文件数据
-    bool readFileData(const QString& fileName);
+    bool readFileData(const QString&, int = 0);
     // 函数：构建图
     void makeGraph();
     // 函数：获取所有线路名
@@ -63,6 +63,8 @@ public:
     bool leastTime(const QString&, const QString&, QVector<Station>&, QVector<Edge>&);
     // 函数：搜索站点名
     QVector<QString> searchStationName(const QString &);
+    // 函数：删除所有数据
+    void deleteAll();
 
 
 private:

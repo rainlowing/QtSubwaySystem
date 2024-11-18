@@ -2,6 +2,8 @@
 #include "./ui_mainwindow.h"
 #include "./ui_managelines.h"
 
+#include <Python.h>
+
 #include <QDateTime>
 #include <QTimer>
 #include <QGraphicsScene>
@@ -50,9 +52,10 @@ MainWindow::MainWindow(QWidget *parent)
     initStatus();
 
     // 读取内置数据
-    bool flag = subwayGraph->readFileData(":/data/data/subway_shanghai.txt");
-    if (!flag) {
+    bool success = subwayGraph->readFileData("../data/subway_wuhan.txt");
+    if (!success) {
         QMessageBox::warning(this, tr("读取数据错误"), tr("\n将无法展示内置线路！"), QMessageBox::Ok);
+        QApplication::exit(-1);
     }
 
     // 根据读取得到的线路数据更新 ui
@@ -70,6 +73,7 @@ void MainWindow::initConnect() {
     connect(ui->comboBoxStartLine, SIGNAL(currentTextChanged(QString)), this, SLOT(transferStartLineChanged(QString)));
     connect(ui->comboBoxEndLine, SIGNAL(currentTextChanged(QString)), this, SLOT(transferEndLineChanged(QString)));
     connect(ui->pushButtonTransfer, SIGNAL(clicked(bool)), this, SLOT(transfer()));
+    connect(ui->pushButtonSearchCity, SIGNAL(clicked(bool)), this, SLOT(searchCity()));
     connect(ui->pushButtonSearchStation, SIGNAL(clicked(bool)), this, SLOT(mapToStation()));
     connect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
     connect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
@@ -84,6 +88,84 @@ void MainWindow::updateTime() {
     QDateTime time = QDateTime::currentDateTime();
     QString str = time.toString("yyyy-MM-dd hh:mm:ss");
     labelTime->setText(str);
+}
+
+// 槽函数：pushButtonSearchCity 按下
+void MainWindow::searchCity() {
+    QString cityName = ui->lineEditSearchCity->text();
+    if (cityName.isEmpty()) {
+        QMessageBox::warning(this, tr("提示"), tr("请输入城市名"), QMessageBox::Ok);
+        return;
+    }
+
+    // Python 解释器初始化
+    Py_Initialize();
+
+    // 检查 Python 是否成功初始化
+    if (!Py_IsInitialized()) {
+        QMessageBox::warning(this, tr("错误"), tr("Python 脚本初始化失败，无法使用该功能"), QMessageBox::Ok);
+        return;
+    }
+
+    const char* input;
+    QByteArray ba = cityName.toLatin1();
+    input = ba.data();  // 乱码
+    PyObject* py_input = Py_BuildValue("s", input);
+
+    FILE* file = fopen("../script.py", "r");
+    if (file != nullptr) {
+        int result = PyRun_SimpleFile(file, "script.py");
+        PyObject* sys_module = PyImport_ImportModule("sys");
+        PyObject* sys_dict = PyModule_GetDict(sys_module);
+        PyObject_SetItem(sys_dict, Py_BuildValue("s", "city_name"), py_input);
+        fclose(file);
+    } else {
+        QMessageBox::warning(this, tr("错误"), tr("无法打开 Python 脚本"), QMessageBox::Ok);
+        Py_Finalize();
+        return;
+    }
+
+    Py_Finalize();
+
+//
+//    QProcess process;
+//    process.start("python", QStringList() << R"(D:\QtProjects\WuhanSubway\script.py)" << cityName);
+//
+//    if (!process.waitForStarted()) {
+//        QMessageBox::critical(this, tr("脚本程序错误"), tr("无法启动脚本程序"), QMessageBox::Ok);
+//        return;
+//    }
+//
+//    if (!process.waitForFinished()) {
+//        QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确执行"), QMessageBox::Ok);
+//        return;
+//    }
+//
+//    int exitCode = process.exitCode();
+
+//    QString outputFileName;
+//    if (exitCode == 0) {
+//        outputFileName = process.readAllStandardOutput();
+//        if (!QFile::exists(outputFileName)) {
+//            QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确生成对应城市的数据文件"), QMessageBox::Ok);
+//            return;
+//        } else {
+//            bool success = subwayGraph->readFileData(outputFileName, 1);
+//            if (!success) {
+//                QMessageBox::warning(this, tr("读取数据错误"), tr("数据文件没有正确打开"), QMessageBox::Ok);
+//                return;
+//            }
+//            updateTransferQueryInfo();
+//            searchStation();
+//            on_action_linemap_triggered();
+//        }
+//    } else if (exitCode == 1) {
+//        QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确接收到参数"), QMessageBox::Ok);
+//        return;
+//    } else if (exitCode == 2) {
+//        QMessageBox::information(this, tr("获取数据失败"), tr("请检查：\n1. 网络状况是否正常\n2. 输入是否正确\n3. 所查询城市是否存在地铁或轨道交通系统"), QMessageBox::Ok);
+//        return;
+//    }
 }
 
 // 槽函数：lineEditSearchStation 被编辑
@@ -289,22 +371,18 @@ void MainWindow::drawStation(const QVector<Station>& stations) {
         auto* ellipseItem = new QGraphicsEllipseItem;
         // 设置椭圆的矩形区域，矩形左上角坐标 (x, y) ，宽，高
         ellipseItem->setRect(-NODE_HALF_WIDTH, -NODE_HALF_WIDTH, NODE_HALF_WIDTH * 2, NODE_HALF_WIDTH * 2);
-        // 设置椭圆的中心位置
         ellipseItem->setPos(stationScenePos);
-        // 设置鼠标悬停样式
         ellipseItem->setCursor(Qt::WhatsThisCursor);
-        // 设置鼠标悬停提示框内容
         ellipseItem->setToolTip(tip);
+        ellipseItem->setBrush(QColor(QRgb(0xffffff)));
         if (mask->isVisible()) {
             ellipseItem->setZValue(5);
         }
         if (station.lineNames.size() < 2) {
             // 设置线条颜色和宽度
             ellipseItem->setPen(getStationColor(station));
-            ellipseItem->setBrush(QColor(QRgb(0xffffff)));
         } else {
             ellipseItem->setPen(QColor(0xffffff));
-            ellipseItem->setBrush(QColor(0xffffff));
             auto* svgItem = new QGraphicsSvgItem(":/icon/icon/repost.svg");
             if (mask->isVisible()) {
                 svgItem->setZValue(6);
@@ -378,8 +456,8 @@ void MainWindow::updateResultText(const QVector<Edge> &edges, const QVector<Stat
 QPointF MainWindow::getStationScenePos(QPointF coord) {
     QPointF minCoord = SubwayGraph::getMinCoord();
     QPointF maxCoord = SubwayGraph::getMaxCoord();
-    double x = (coord.x() - minCoord.x()) / (maxCoord.x() - minCoord.x()) * SCENE_WIDTH + MARGIN;
-    double y = (maxCoord.y() - coord.y()) / (maxCoord.y() - minCoord.y()) * SCENE_HEIGHT + MARGIN;
+    double x = (coord.x() - minCoord.x()) / (maxCoord.x() - minCoord.x()) * GRAPH_WIDTH + MARGIN;
+    double y = (maxCoord.y() - coord.y()) / (maxCoord.y() - minCoord.y()) * GRAPH_HEIGHT + MARGIN;
     return {x, y};
 }
 

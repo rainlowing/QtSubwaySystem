@@ -96,9 +96,9 @@ color:black;</string>
          </widget>
         </item>
         <item>
-         <widget class="QComboBox" name="comboBoxSelectCity">
+         <widget class="QLineEdit" name="lineEditSearchCity">
           <property name="placeholderText">
-           <string>选择城市</string>
+           <string>输入城市名</string>
           </property>
          </widget>
         </item>
