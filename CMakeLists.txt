@@ -14,6 +14,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt6 REQUIRED COMPONENTS SvgWidgets)
 find_package(Qt6 REQUIRED COMPONENTS Svg)
 find_package(Python3 REQUIRED)
+find_package(Qt6 REQUIRED COMPONENTS Core5Compat)
 
 #include_directories(C:\\Users\\rainl\\.pyenv\\pyenv-win\\versions\\3.11.0\\include)
 #link_directories(C:\\Users\\rainl\\.pyenv\\pyenv-win\\versions\\3.11.0\\libs\\python311.lib)
@@ -76,6 +77,7 @@ target_link_libraries(WuhanSubway PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(WuhanSubway PRIVATE Qt6::SvgWidgets)
 target_link_libraries(WuhanSubway PRIVATE Qt6::Svg)
 target_link_libraries(WuhanSubway PRIVATE ${Python3_LIBRARIES})
+target_link_libraries(WuhanSubway PRIVATE Qt6::Core5Compat)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

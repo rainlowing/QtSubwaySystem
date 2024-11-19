@@ -2,8 +2,6 @@
 #include "./ui_mainwindow.h"
 #include "./ui_managelines.h"
 
-#include <Python.h>
-
 #include <QDateTime>
 #include <QTimer>
 #include <QGraphicsScene>
@@ -11,6 +9,7 @@
 #include <QGraphicsLineItem>
 #include <QWheelEvent>
 #include <QtSvgWidgets>
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -55,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
     bool success = subwayGraph->readFileData("../data/subway_wuhan.txt");
     if (!success) {
         QMessageBox::warning(this, tr("读取数据错误"), tr("\n将无法展示内置线路！"), QMessageBox::Ok);
-        QApplication::exit(-1);
     }
 
     // 根据读取得到的线路数据更新 ui
@@ -83,6 +81,21 @@ void MainWindow::initConnect() {
     connect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
 }
 
+// 函数：断开槽函数
+void MainWindow::destroyConnect() {
+    disconnect(ui->comboBoxStartLine, SIGNAL(currentTextChanged(QString)), this, SLOT(transferStartLineChanged(QString)));
+    disconnect(ui->comboBoxEndLine, SIGNAL(currentTextChanged(QString)), this, SLOT(transferEndLineChanged(QString)));
+    disconnect(ui->pushButtonTransfer, SIGNAL(clicked(bool)), this, SLOT(transfer()));
+    disconnect(ui->pushButtonSearchCity, SIGNAL(clicked(bool)), this, SLOT(searchCity()));
+    disconnect(ui->pushButtonSearchStation, SIGNAL(clicked(bool)), this, SLOT(mapToStation()));
+    disconnect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
+    disconnect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
+
+    disconnect(manageLines->ui->pushButtonAddLine, SIGNAL(clicked(bool)), this, SLOT(addLine()));
+    timer->start(1000);
+    disconnect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
+}
+
 // 槽函数：更新状态栏时间
 void MainWindow::updateTime() {
     QDateTime time = QDateTime::currentDateTime();
@@ -98,74 +111,54 @@ void MainWindow::searchCity() {
         return;
     }
 
-    // Python 解释器初始化
-    Py_Initialize();
+    QString program = "python";
+    QString path = R"(D:\QtProjects\WuhanSubway\script.py)";
+    QString argv = cityName.toUtf8().toHex();
+    QStringList argument;
+    argument.append(path);
+    argument.append(argv);
 
-    // 检查 Python 是否成功初始化
-    if (!Py_IsInitialized()) {
-        QMessageBox::warning(this, tr("错误"), tr("Python 脚本初始化失败，无法使用该功能"), QMessageBox::Ok);
+    QProcess process;
+    process.start(program, argument);
+
+    if (!process.waitForStarted()) {
+        QMessageBox::critical(this, tr("脚本程序错误"), tr("无法启动脚本程序"), QMessageBox::Ok);
         return;
     }
 
-    const char* input;
-    QByteArray ba = cityName.toLatin1();
-    input = ba.data();  // 乱码
-    PyObject* py_input = Py_BuildValue("s", input);
-
-    FILE* file = fopen("../script.py", "r");
-    if (file != nullptr) {
-        int result = PyRun_SimpleFile(file, "script.py");
-        PyObject* sys_module = PyImport_ImportModule("sys");
-        PyObject* sys_dict = PyModule_GetDict(sys_module);
-        PyObject_SetItem(sys_dict, Py_BuildValue("s", "city_name"), py_input);
-        fclose(file);
-    } else {
-        QMessageBox::warning(this, tr("错误"), tr("无法打开 Python 脚本"), QMessageBox::Ok);
-        Py_Finalize();
+    if (!process.waitForFinished()) {
+        QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确执行"), QMessageBox::Ok);
         return;
     }
 
-    Py_Finalize();
+    int exitCode = process.exitCode();
+    QString output = process.readAllStandardOutput().trimmed();
 
-//
-//    QProcess process;
-//    process.start("python", QStringList() << R"(D:\QtProjects\WuhanSubway\script.py)" << cityName);
-//
-//    if (!process.waitForStarted()) {
-//        QMessageBox::critical(this, tr("脚本程序错误"), tr("无法启动脚本程序"), QMessageBox::Ok);
-//        return;
-//    }
-//
-//    if (!process.waitForFinished()) {
-//        QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确执行"), QMessageBox::Ok);
-//        return;
-//    }
-//
-//    int exitCode = process.exitCode();
-
-//    QString outputFileName;
-//    if (exitCode == 0) {
-//        outputFileName = process.readAllStandardOutput();
-//        if (!QFile::exists(outputFileName)) {
-//            QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确生成对应城市的数据文件"), QMessageBox::Ok);
-//            return;
-//        } else {
-//            bool success = subwayGraph->readFileData(outputFileName, 1);
-//            if (!success) {
-//                QMessageBox::warning(this, tr("读取数据错误"), tr("数据文件没有正确打开"), QMessageBox::Ok);
-//                return;
-//            }
-//            updateTransferQueryInfo();
-//            searchStation();
-//            on_action_linemap_triggered();
-//        }
-//    } else if (exitCode == 1) {
-//        QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确接收到参数"), QMessageBox::Ok);
-//        return;
-//    } else if (exitCode == 2) {
-//        QMessageBox::information(this, tr("获取数据失败"), tr("请检查：\n1. 网络状况是否正常\n2. 输入是否正确\n3. 所查询城市是否存在地铁或轨道交通系统"), QMessageBox::Ok);
-//        return;
-//    }
+    if (exitCode == 0) {
+        if (!QFile::exists(output)) {
+            QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确生成对应城市的数据文件"), QMessageBox::Ok);
+            return;
+        } else {
+            bool success = subwayGraph->readFileData(output, 1);
+            if (!success) {
+                QMessageBox::warning(this, tr("读取数据错误"), tr("数据文件没有正确打开"), QMessageBox::Ok);
+                return;
+            }
+            // 断开槽函数避免内存占用
+            destroyConnect();
+            updateTransferQueryInfo();
+            searchStation();
+            initConnect();
+            on_action_linemap_triggered(1);
+            ui->graphicsView->centerOn(scene->sceneRect().center());
+        }
+    } else if (exitCode == 100) {
+        QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确接收到参数"), QMessageBox::Ok);
+        return;
+    } else if (exitCode == 200) {
+        QMessageBox::information(this, tr("获取数据失败"), tr("请检查：\n1. 网络状况是否正常\n2. 输入是否正确\n3. 所查询城市是否存在地铁或轨道交通系统"), QMessageBox::Ok);
+        return;
+    }
 }
 
 // 槽函数：lineEditSearchStation 被编辑
@@ -516,8 +509,15 @@ void MainWindow::on_action_shrink_triggered() {
 }
 
 // 槽函数：action_linemap 绘制并显示地铁图所有线路
-void MainWindow::on_action_linemap_triggered()
-{
+void MainWindow::on_action_linemap_triggered(int reset) {
+    if (reset == 1) {
+        for (auto* item : scene->items()) {
+            if (item != mask) {
+                delete item;
+            }
+        }
+        mask->setVisible(false);
+    }
     drawEdge(subwayGraph->getAllEdges());
     drawStation(subwayGraph->getAllStations());
 }

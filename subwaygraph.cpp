@@ -6,6 +6,8 @@
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
+#include <QMutex>
+#include <QMutexLocker>
 
 // 构造函数
 SubwayGraph::SubwayGraph() {
@@ -164,7 +166,8 @@ QPointF SubwayGraph::getMaxCoord() {
 
 // 函数：根据线路名获取线路
 Line SubwayGraph::getLineByName(const QString& lineName) {
-    return *lineHash.value(lineName);
+    Line line = *lineHash.value(lineName);
+    return line;
 }
 
 // 函数：根据线路名获取线路颜色
@@ -343,6 +346,17 @@ void SubwayGraph::deleteAll() {
     for (Edge* edge : edges) {
         delete edge;
     }
+
+    lineNames.clear();
+    lines.clear();
+    lineHash.clear();
+    stations.clear();
+    stationHash.clear();
+    edges.clear();
+    edgeHash.clear();
+    graph.clear();
+
+    Station::resetCoord();
 }
 
 SubwayGraph::~SubwayGraph() {

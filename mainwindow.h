@@ -61,7 +61,7 @@ private slots:
     // 槽函数：aciton_addbytext 文本添加
     void on_action_addbytext_triggered();
     // 槽函数：action_linemap 绘制并显示地铁图所有线路
-    void on_action_linemap_triggered();
+    void on_action_linemap_triggered(int = 0);
     // 槽函数：action_enlarge 放大视图
     void on_action_enlarge_triggered();
     // 槽函数：action_shrink 缩小视图
@@ -88,6 +88,8 @@ private:
 
     // 函数：连接槽函数
     void initConnect();
+    // 函数：断开槽函数
+    void destroyConnect();
     // 函数：初始化状态栏 StatusBar
     void initStatus();
     // 函数：更新换乘信息

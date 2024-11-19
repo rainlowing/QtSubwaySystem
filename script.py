@@ -18,11 +18,12 @@ api = '408ba23f4126ba7b2e7b3267ae0202c9'
 
 def save_subway_data(city_code, city_pinyin):
     url = f'https://map.amap.com/service/subway?&srhdata={city_code}_drw_{city_pinyin}.json'
-    output_path = f'./data/subway_{city_pinyin}.txt'
+    output_path = f'../data/subway_{city_pinyin}.txt'
 
     response = requests.get(url)
     if response.status_code != 200:
-        sys.exit(2)
+        print('response wrong when get city_pinyin')
+        sys.exit(200)
 
     data = response.json()
 
@@ -55,28 +56,31 @@ def save_subway_data(city_code, city_pinyin):
             output_file.write("\n")
             color_index += 1
 
-    print(f"../data/subway_{city_pinyin}")
+    print(f"../data/subway_{city_pinyin}.txt")
     sys.exit(0)
 
 
 if __name__ == "__main__":
     # city_name = input("请输入城市名（如：上海、北京、广州）：")
-    city_name = None
+    city_name = ""
     if len(sys.argv) > 1:
-        city_name = sys.get('city_name')
+        city_name = bytes.fromhex(sys.argv[1]).decode('utf-8')
     else:
-        sys.exit(1)
+        sys.exit(100)
 
     url_code = f"https://restapi.amap.com/v3/config/district?keywords={city_name}&subdistrict=0&key={api}"
 
     response = requests.get(url_code)
     if response.status_code != 200:
-        sys.exit(2)
+        print('response wrong when get data_code')
+        sys.exit(200)
 
     data_code = response.json()
     districts = data_code.get('districts', [])
     if not districts:
-        sys.exit(2)
+        print('districts not data')
+        print(url_code)
+        sys.exit(200)
 
     adcode = districts[0].get('adcode')
 

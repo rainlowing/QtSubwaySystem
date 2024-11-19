@@ -72,3 +72,10 @@ QVector<QString> Station::getCommonLineNames(Station& other) {
     }
     return commonLineNames;
 }
+
+void Station::resetCoord() {
+    maxLongitude = 0.0;
+    maxLatitude = 0.0;
+    minLongitude = 180.0;
+    minLatitude = 90.0;
+}

@@ -23,6 +23,8 @@ public:
     QString getLineInfo() const;
     // 函数：获取两个站点的共同所属线路名数组
     QVector<QString> getCommonLineNames(Station& other);
+    // 函数：初始化最大最小经纬度
+    static void resetCoord();
 
     QString id;                         // ID
     QString name;                       // 名称
