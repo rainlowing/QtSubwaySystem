@@ -32,8 +32,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     // 设置场景大小 2060 * 2060
     scene->setSceneRect(0, 0, SCENE_WIDTH, SCENE_HEIGHT);
-    // 设置初始视口大小 50 * 50，场景不缩放变形
-    ui->graphicsView->fitInView(QRect(0, 0, 50, 50), Qt::KeepAspectRatio);
     // 使视口中心正对场景中心
     ui->graphicsView->centerOn(scene->sceneRect().center());
 
@@ -73,6 +71,9 @@ void MainWindow::initConnect() {
     connect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
     connect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
 
+    connect(ui->lineEditSearchCity, SIGNAL(returnPressed()), ui->pushButtonSearchCity, SLOT(click()));
+    connect(ui->comboBoxSearchStation, SIGNAL(returnPressed()), ui->pushButtonSearchStation, SLOT(click()));
+
     timer->start(1000);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
 }
@@ -86,6 +87,9 @@ void MainWindow::destroyConnect() {
     disconnect(ui->pushButtonSearchStation, SIGNAL(clicked(bool)), this, SLOT(mapToStation()));
     disconnect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
     disconnect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
+
+    disconnect(ui->lineEditSearchCity, SIGNAL(returnPressed()), ui->pushButtonSearchCity, SLOT(click()));
+    disconnect(ui->comboBoxSearchStation, SIGNAL(returnPressed()), ui->pushButtonSearchStation, SLOT(click()));
 
     timer->start(1000);
     disconnect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
@@ -105,6 +109,8 @@ void MainWindow::searchCity() {
         QMessageBox::warning(this, tr("提示"), tr("请输入城市名"), QMessageBox::Ok);
         return;
     }
+
+    labelHint->setText(tr("查询中，请稍等"));
 
     QString program = "python";
     QString path = R"(D:\QtProjects\WuhanSubway\script.py)";
@@ -142,10 +148,13 @@ void MainWindow::searchCity() {
             // 断开槽函数避免内存占用
             destroyConnect();
             updateTransferQueryInfo();
+            ui->comboBoxSearchStation->clear();
             searchStation();
             initConnect();
-            on_action_linemap_triggered(1);
+            reDraw();
+            ui->graphicsView->fitInView(QRect(0, 0, 1000, 1000), Qt::KeepAspectRatio);
             ui->graphicsView->centerOn(scene->sceneRect().center());
+            labelHint->setText(tr("地铁图数据已切换至") + cityName);
         }
     } else if (exitCode == 100) {
         QMessageBox::warning(this, tr("脚本程序错误"), tr("脚本程序没有正确接收到参数"), QMessageBox::Ok);
@@ -167,8 +176,14 @@ void MainWindow::searchStation() {
 // 槽函数：pushButtonSearchStation 按下
 void MainWindow::mapToStation() {
     QString name = ui->comboBoxSearchStation->currentText();
-    Station station = subwayGraph->getStationByName(name);
-    ui->graphicsView->centerOn(getStationScenePos({station.longitude, station.latitude}));
+    bool success = subwayGraph->isStationExist(name);
+    if (success) {
+        Station station = subwayGraph->getStationByName(name);
+        ui->graphicsView->centerOn(getStationScenePos({station.longitude, station.latitude}));
+        labelHint->setText(tr("查询成功"));
+    } else {
+        labelHint->setText(tr("查询失败，请检查输入是否有误"));
+    }
 }
 
 // 槽函数：pushButtonReset 按下
@@ -183,6 +198,7 @@ void MainWindow::reset() {
     }
     mask->setVisible(false);
     ui->textBrowser->clear();
+    labelHint->setText(tr("已重置"));
 }
 
 // 槽函数：pushButtonTransfer 按下
@@ -236,7 +252,7 @@ void MainWindow::initStatus() {
 
 // 函数：更新换乘信息
 void MainWindow::updateTransferQueryInfo() {
-    labelHint->setText(tr("欢迎使用武汉地铁换乘系统，已更新数据"));
+    labelHint->setText(tr("欢迎使用地铁换乘系统，已更新数据"));
     ui->comboBoxStartLine->clear();
     ui->comboBoxStartStation->clear();
     ui->comboBoxEndLine->clear();
@@ -426,6 +442,16 @@ QPointF MainWindow::getStationScenePos(QPointF coord) {
     return {x, y};
 }
 
+// 函数：重绘地铁图
+void MainWindow::reDraw() {
+    for (auto* item : scene->items()) {
+        if (item != mask) {
+            delete item;
+        }
+    }
+    on_action_linemap_triggered();
+}
+
 MainWindow::~MainWindow()
 {
     delete ui;
@@ -453,15 +479,8 @@ void MainWindow::on_action_shrink_triggered() {
 }
 
 // 槽函数：action_linemap 绘制并显示地铁图所有线路
-void MainWindow::on_action_linemap_triggered(int reset) {
-    if (reset == 1) {
-        for (auto* item : scene->items()) {
-            if (item != mask) {
-                delete item;
-            }
-        }
-        mask->setVisible(false);
-    }
+void MainWindow::on_action_linemap_triggered() {
+    mask->setVisible(false);
     drawEdge(subwayGraph->getAllEdges());
     drawStation(subwayGraph->getAllStations());
 }
@@ -499,13 +518,45 @@ void MainWindow::on_action_close_triggered() {
     QApplication::quit();
 }
 
+// 槽函数：action_qt 关于Qt
+void MainWindow::on_action_qt_triggered() {
+    QMessageBox::aboutQt(this, tr("关于Qt"));
+}
+
+// 槽函数：action_author 制作者信息
+void MainWindow::on_action_author_triggered() {
+    QMessageBox box;
+    box.setWindowTitle(tr("关于制作者"));
+    box.setText(tr("Author: rainlowing \n"
+                   "Email: rainlowing@outlook.com \n"
+                   "\n"
+                   "\n"
+                   "This project includes code from the open-source project: SubwayTransferSystem \n"
+                   "\n"
+                   "Original Author: BaiJiazm \n"
+                   "Source: github.com/BaiJiazm/SubwayTransferSystem"));
+    box.addButton(tr("确定"), QMessageBox::AcceptRole);
+    if (box.exec() == QMessageBox::Accepted) {
+        box.close();
+    }
+}
+
 // 事件过滤器
 bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     if (event->type() == QEvent::Wheel) {
         QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
-        if (wheelEvent->angleDelta().y()) {
+        if (wheelEvent->angleDelta().y() && view->getZoomEnabled()) {
             labelHint->setText(tr("提示：按下 Ctrl 键滚动鼠标滑轮可缩放视图"));
             return true;
+        }
+    } else if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+            if (ui->lineEditSearchCity->hasFocus()) {
+                ui->pushButtonSearchCity->click();
+            } else if (ui->comboBoxSearchStation->hasFocus()) {
+                ui->pushButtonSearchStation->click();
+            }
         }
     }
     return false;

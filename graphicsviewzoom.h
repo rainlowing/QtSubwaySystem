@@ -14,6 +14,7 @@ public:
 
     void setView(QGraphicsView*);
     void setZoomEnabled(bool flag);
+    bool getZoomEnabled();
 
 private:
     QGraphicsView* view;

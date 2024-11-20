@@ -55,8 +55,6 @@ public:
     bool isStationExist(const QString& stationName);
     // 函数：根据两个站点的站点名查找连接
     Edge getEdgeByTwoStationNames(const QString&, const QString&);
-    // 函数：添加一条线路
-    void addLine(QString lineName, QColor lineColor);
     // 函数：计算途径站数最少路线
     bool leastStations(const QString&, const QString&, QVector<Station>&, QVector<Edge>&);
     // 函数：计算搭乘时间最短路线

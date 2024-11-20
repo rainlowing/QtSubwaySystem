@@ -207,11 +207,6 @@ bool SubwayGraph::isStationExist(const QString& stationName) {
     return stationHash.contains(stationName);
 }
 
-// 函数：添加一条线路
-void SubwayGraph::addLine(QString lineName, QColor lineColor) {
-
-}
-
 // 函数：计算途径站数最少路线
 bool SubwayGraph::leastStations(const QString& s1Name, const QString& s2Name, QVector<Station>& tranStasions, QVector<Edge>& tranEdges) {
     tranStasions.clear();

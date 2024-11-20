@@ -41,7 +41,7 @@ private slots:
     // 槽函数：pushButtonTransfer 按下
     void transfer();
     // 槽函数：action_linemap 绘制并显示地铁图所有线路
-    void on_action_linemap_triggered(int = 0);
+    void on_action_linemap_triggered();
     // 槽函数：action_enlarge 放大视图
     void on_action_enlarge_triggered();
     // 槽函数：action_shrink 缩小视图
@@ -54,6 +54,10 @@ private slots:
     void on_action_wheel_triggered();
     // 槽函数：action_close 退出程序
     void on_action_close_triggered();
+    // 槽函数：action_qt 关于Qt
+    void on_action_qt_triggered();
+    // 槽函数：action_author 制作者信息
+    void on_action_author_triggered();
 
 private:
     Ui::MainWindow *ui;                         // 主窗口 UI
@@ -94,6 +98,8 @@ private:
     static QPointF getStationScenePos(QPointF coord);
     // 函数：根据站点计算混合颜色
     QColor getStationColor(const Station& station);
+    // 函数：重绘地铁图
+    void reDraw();
     // 事件过滤器
     bool eventFilter(QObject* object, QEvent* event) override;
 

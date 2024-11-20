@@ -300,13 +300,13 @@ color:black;</string>
    </property>
    <widget class="QMenu" name="menu_F">
     <property name="title">
-     <string>文件(F)</string>
+     <string>文件(&amp;F)</string>
     </property>
     <addaction name="action_close"/>
    </widget>
    <widget class="QMenu" name="menu_V">
     <property name="title">
-     <string>视图(V)</string>
+     <string>视图(&amp;V)</string>
     </property>
     <addaction name="action_enlarge"/>
     <addaction name="action_shrink"/>
@@ -316,14 +316,14 @@ color:black;</string>
    </widget>
    <widget class="QMenu" name="menu_W">
     <property name="title">
-     <string>查看(W)</string>
+     <string>查看(&amp;W)</string>
     </property>
     <addaction name="action_toolbar"/>
     <addaction name="action_statusbar"/>
    </widget>
    <widget class="QMenu" name="menu_A">
     <property name="title">
-     <string>关于(A)</string>
+     <string>关于(&amp;A)</string>
     </property>
     <addaction name="action_qt"/>
     <addaction name="action_author"/>
@@ -350,8 +350,14 @@ color:black;</string>
    <addaction name="action_linemap"/>
   </widget>
   <action name="action_close">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::ApplicationExit"/>
+   </property>
    <property name="text">
-    <string>退出</string>
+    <string>退出(&amp;E)</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
   <action name="action_transfer">
@@ -470,13 +476,25 @@ color:black;</string>
    </property>
   </action>
   <action name="action_qt">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>关于 Qt</string>
    </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
   </action>
   <action name="action_author">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::HelpAbout"/>
+   </property>
    <property name="text">
     <string>制作者</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
    </property>
   </action>
   <action name="action_usehelp">

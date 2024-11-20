@@ -28,7 +28,7 @@ def save_subway_data(city_code, city_pinyin):
     data = response.json()
 
     with open(output_path, 'w', encoding='utf-8') as output_file:
-        loca_code = data.get('i', [])
+        # loca_code = data.get('i', [])
         # output_file.write(f"地区代码：{loca_code}\n")
 
         color_index = 0

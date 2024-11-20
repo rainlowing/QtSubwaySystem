@@ -43,6 +43,11 @@ void GraphicsViewZoom::setZoomEnabled(bool flag) {
     zoomEnabled = flag;
 }
 
+// 函数：返回缩放可用状态
+bool GraphicsViewZoom::getZoomEnabled() {
+    return zoomEnabled;
+}
+
 // 缩放方法
 void GraphicsViewZoom::gentleZoom(double factor) {
     // 计算视口中心的场景位置，防止缩放后视口的焦点偏移
