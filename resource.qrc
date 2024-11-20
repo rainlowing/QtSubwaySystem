@@ -16,14 +16,6 @@
         <file>icon/text.png</file>
         <file>icon/repost.svg</file>
     </qresource>
-    <qresource prefix="/html">
-        <file>html/helpAddByText.html</file>
-        <file>html/helpAddConnection.html</file>
-        <file>html/helpAddLine.html</file>
-        <file>html/helpAddStation.html</file>
-        <file>html/helpTransfer.html</file>
-        <file>html/helpWatch.html</file>
-    </qresource>
 <!--    <qresource prefix="/script">-->
 <!--        <file>scripts/stations.py</file>-->
 <!--    </qresource>-->

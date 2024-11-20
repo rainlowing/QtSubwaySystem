@@ -40,3 +40,6 @@ Thumbs.db
 
 # Allen Explorer
 *.ala
+
+docs/
+html/
