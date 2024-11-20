@@ -5,9 +5,7 @@ double Station::maxLatitude = 0.0;
 double Station::minLongitude = 180.0;
 double Station::minLatitude = 90.0;
 
-Station::Station() {
-
-}
+Station::Station() = default;
 
 // 赋值运算符重载
 Station& Station::operator=(const Station &other) {

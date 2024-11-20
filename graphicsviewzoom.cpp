@@ -9,7 +9,7 @@ GraphicsViewZoom::GraphicsViewZoom() {
 }
 
 GraphicsViewZoom::GraphicsViewZoom(QGraphicsView* view)
-    : QObject(view), view(view)
+    : QObject(view), view(view), zoomEnabled(true)
 {
     // 安装事件过滤器
     view->viewport()->installEventFilter(this);
@@ -44,11 +44,11 @@ void GraphicsViewZoom::setZoomEnabled(bool flag) {
 }
 
 // 函数：返回缩放可用状态
-bool GraphicsViewZoom::getZoomEnabled() {
+bool GraphicsViewZoom::getZoomEnabled() const {
     return zoomEnabled;
 }
 
-// 缩放方法
+// 函数：缩放实现
 void GraphicsViewZoom::gentleZoom(double factor) {
     // 计算视口中心的场景位置，防止缩放后视口的焦点偏移
     QPointF sceneCenter = view->mapToScene(view->viewport()->rect().center());
@@ -77,13 +77,4 @@ bool GraphicsViewZoom::eventFilter(QObject *object, QEvent *event) {
         }
     }
     return false;
-}
-
-
-void GraphicsViewZoom::setModifiers(Qt::KeyboardModifiers modifiers) {
-    this->modifiers = modifiers;
-}
-
-void GraphicsViewZoom::setZoomFactorBase(double value) {
-    zoomFactorBase = value;
 }

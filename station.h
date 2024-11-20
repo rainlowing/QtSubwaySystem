@@ -1,12 +1,12 @@
-#ifndef WUHANSUBWAY_STATION_H
-#define WUHANSUBWAY_STATION_H
+#ifndef STATION_H
+#define STATION_H
 
 #include <QString>
 #include <QSet>
 #include <QtGlobal>
 #include <QPointF>
 
-// 地铁站类
+// 地铁站点类
 class Station {
 public:
     Station();
@@ -41,4 +41,4 @@ public:
 };
 
 
-#endif //WUHANSUBWAY_STATION_H
+#endif // STATION_H

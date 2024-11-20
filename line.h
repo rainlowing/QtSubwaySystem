@@ -25,4 +25,4 @@ public:
 };
 
 
-#endif //WUHANSUBWAY_LINE_H
+#endif // LINE_H

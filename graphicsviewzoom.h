@@ -12,24 +12,25 @@ public:
     explicit GraphicsViewZoom();
     explicit GraphicsViewZoom(QGraphicsView* view);
 
+    // 函数：设置 view
     void setView(QGraphicsView*);
+    // 函数：设置滚轮缩放是否可用
     void setZoomEnabled(bool flag);
-    bool getZoomEnabled();
+    // 函数：返回缩放可用状态
+    bool getZoomEnabled() const;
 
 private:
     QGraphicsView* view;
-    Qt::KeyboardModifiers modifiers;            // 修饰键
+    Qt::KeyboardModifiers modifiers;
     double zoomFactorBase;                      // 缩放因子基数，缩放因子 = 基数 ^ 滚轮旋转量
-
     bool zoomEnabled;
 
-    void gentleZoom(double factor);                         // 缩放方法
-    bool eventFilter(QObject* object, QEvent* event);       // 事件过滤器
-    void setModifiers(Qt::KeyboardModifiers modifiers);     // 设置修饰键
-    void setZoomFactorBase(double value);                   // 设置缩放因子基数
+    // 函数：实现缩放
+    void gentleZoom(double factor);
+    bool eventFilter(QObject* object, QEvent* event);
 
 signals:
-    void zoomed();                                      // 信号，表示缩放事件发生
+    void zoomed();                               // 信号，表示缩放事件发生
 };
 
 #endif // GRAPHICSVIEWZOOM_H

@@ -15,6 +15,7 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+// 主窗口类
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

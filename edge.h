@@ -4,6 +4,7 @@
 #include "station.h"
 #include "line.h"
 
+// 连接类
 class Edge {
 public:
     Edge();
@@ -12,7 +13,7 @@ public:
     Station station1;           // 站点1，出发站点
     Station station2;           // 站点2，结束站点
     Line line;                  // 所属线路
-    double dist;                // 站点距离
+    double dist{};                // 站点距离
 };
 
 #endif // EDGE_H

@@ -1,7 +1,3 @@
-//
-// Created by rainl on 2024/11/14.
-//
-
 #include "line.h"
 
 Line::Line() {

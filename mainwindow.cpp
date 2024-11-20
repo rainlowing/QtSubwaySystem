@@ -149,6 +149,7 @@ void MainWindow::searchCity() {
             destroyConnect();
             updateTransferQueryInfo();
             ui->comboBoxSearchStation->clear();
+            ui->textBrowser->clear();
             searchStation();
             initConnect();
             reDraw();
@@ -408,15 +409,13 @@ void MainWindow::updateResultText(const QVector<Edge> &edges, const QVector<Stat
             text = tr("以下路线换乘次数最少，共换乘") + QString::number(stations.size()) + tr("个站点");
             break;
         case 2:
-            double time;
+            double time = 0.0;
             for (const auto& edge : edges) {
                 time += edge.dist / SPEED;
             }
             time *= 60;
             text = tr("以下路线时间最短，大约需要") + QString::number(time, 'f',0) + tr("分钟\n（在时速40km/h下）");
             break;
-        default:
-            return;
     }
     text += "\n";
     for (int i = 0; i < stations.size(); ++i) {
