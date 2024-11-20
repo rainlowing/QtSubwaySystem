@@ -350,9 +350,6 @@ color:black;</string>
    <addaction name="action_linemap"/>
   </widget>
   <action name="action_close">
-   <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::ApplicationExit"/>
-   </property>
    <property name="text">
     <string>退出(&amp;E)</string>
    </property>
