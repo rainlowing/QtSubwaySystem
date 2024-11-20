@@ -2,9 +2,7 @@
 #define MAINWINDOW_H
 
 #include "graphicsviewzoom.h"
-#include "managelines.h"
 #include "subwaygraph.h"
-#include "apphelp.h"
 
 #include <QMainWindow>
 #include <QLabel>
@@ -42,38 +40,26 @@ private slots:
     void reset();
     // 槽函数：pushButtonTransfer 按下
     void transfer();
-    // 槽函数：pushButtonAddLine 按下
-    void addLine();
-    // 槽函数：pushButtonAddStation 按下
-    void addStation();
-    // 槽函数：pushButtonAddConnect 按下
-//    void addConnect();
-//    // 槽函数：pushButtonAddByText 按下
-//    void addByText();
-    // 槽函数：action_addall 添加所有
-    void on_action_addall_triggered();
-    // 槽函数：aciton_addline 添加线路
-    void on_action_addline_triggered();
-    // 槽函数：aciton_addstation 添加站台
-    void on_action_addstation_triggered();
-    // 槽函数：aciton_addconnect 添加连接
-    void on_action_addconnect_triggered();
-    // 槽函数：aciton_addbytext 文本添加
-    void on_action_addbytext_triggered();
     // 槽函数：action_linemap 绘制并显示地铁图所有线路
     void on_action_linemap_triggered(int = 0);
     // 槽函数：action_enlarge 放大视图
     void on_action_enlarge_triggered();
     // 槽函数：action_shrink 缩小视图
     void on_action_shrink_triggered();
+    // 槽函数：action_toolbar 隐藏工具栏
+    void on_action_toolbar_triggered();
+    // 槽函数：action_statusbar 隐藏状态栏
+    void on_action_statusbar_triggered();
+    // 槽函数：aciton_wheel 启用滚轮放大缩小
+    void on_action_wheel_triggered();
+    // 槽函数：action_close 退出程序
+    void on_action_close_triggered();
 
 private:
     Ui::MainWindow *ui;                         // 主窗口 UI
     GraphicsViewZoom* view;                     // 自定义图形视图，用于地图缩放
     QGraphicsScene* scene;                      // 场景，用于渲染地铁图
-    ManageLines* manageLines;                   // 添加功能前端管理类
     SubwayGraph* subwayGraph;                   // 后端管理类
-    AppHelp* appHelp;                           // 帮助显示类
 
     // 场景遮罩
     QGraphicsRectItem* mask;                    // 场景遮罩

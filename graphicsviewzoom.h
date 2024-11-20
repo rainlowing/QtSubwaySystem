@@ -13,11 +13,14 @@ public:
     explicit GraphicsViewZoom(QGraphicsView* view);
 
     void setView(QGraphicsView*);
+    void setZoomEnabled(bool flag);
 
 private:
     QGraphicsView* view;
     Qt::KeyboardModifiers modifiers;            // 修饰键
     double zoomFactorBase;                      // 缩放因子基数，缩放因子 = 基数 ^ 滚轮旋转量
+
+    bool zoomEnabled;
 
     void gentleZoom(double factor);                         // 缩放方法
     bool eventFilter(QObject* object, QEvent* event);       // 事件过滤器

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "./ui_managelines.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -20,9 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     , timer(new QTimer)
     , scene(new QGraphicsScene)
     , view(new GraphicsViewZoom)
-    , manageLines(new ManageLines(this))
     , subwayGraph(new SubwayGraph)
-    , appHelp(new AppHelp)
     , mask(new QGraphicsRectItem)
 {
     this->installEventFilter(this);
@@ -76,7 +73,6 @@ void MainWindow::initConnect() {
     connect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
     connect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
 
-    connect(manageLines->ui->pushButtonAddLine, SIGNAL(clicked(bool)), this, SLOT(addLine()));
     timer->start(1000);
     connect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
 }
@@ -91,7 +87,6 @@ void MainWindow::destroyConnect() {
     disconnect(ui->pushButtonReset, SIGNAL(clicked(bool)), this, SLOT(reset()));
     disconnect(ui->comboBoxSearchStation, SIGNAL(currentTextChanged(const QString &)), this, SLOT(searchStation()));
 
-    disconnect(manageLines->ui->pushButtonAddLine, SIGNAL(clicked(bool)), this, SLOT(addLine()));
     timer->start(1000);
     disconnect(timer, &QTimer::timeout, this, &MainWindow::updateTime);
 }
@@ -224,36 +219,13 @@ void MainWindow::transfer() {
 
 }
 
-// 槽函数：pushButtonAddLine 按下
-void MainWindow::addLine() {
-    QString newLineName = manageLines->ui->lineEditLineName->text();
-    if (newLineName.isEmpty()) {
-        QMessageBox::warning(this, tr("添加线路"), tr("线路名称不能为空"), QMessageBox::Ok);
-    } else if (subwayGraph->isLineExist(newLineName)) {
-        QMessageBox::warning(this, tr("添加线路"), tr("线路已存在"), QMessageBox::Ok);
-    } else if (!manageLines->isLineColorValid()) {
-        QMessageBox::warning(this, tr("添加线路"), tr("未选择颜色"), QMessageBox::Ok);
-    } else {
-        QMessageBox::information(this, tr("添加线路"), tr("线路：") + newLineName + tr(" 添加成功"), QMessageBox::Ok);
-//        subwayGraph->addLine(newLineName);
-    }
-}
-
-// 槽函数：pushButtonAddStation 按下
-void MainWindow::addStation() {
-    QString newStationName = manageLines->ui->lineEditStationName->text();
-    if (newStationName.isEmpty()) {
-        QMessageBox::warning(this, tr("添加站点"), tr("站点名称不能为空"), QMessageBox::Ok);
-    }
-}
-
 // 函数：初始化状态栏
 void MainWindow::initStatus() {
     labelInfo->setMinimumSize(200, 15);
     labelTime->setMinimumSize(200, 15);
     labelHint->setMinimumSize(250, 15);
 
-    labelInfo->setText(tr("原作者：BaiJiazm@github"));
+    labelInfo->setText(tr("作者：rainlowing@github"));
     labelHint->setText(tr("欢迎使用武汉地铁换乘系统"));
 
     ui->statusbar->addWidget(labelInfo);
@@ -459,41 +431,13 @@ MainWindow::~MainWindow()
     delete ui;
     delete view;
     delete scene;
-    delete manageLines;
     delete subwayGraph;
-    delete appHelp;
 
     delete labelInfo;
     delete labelTime;
     delete labelHint;
 
     delete timer;
-}
-
-// 槽函数：action_addall，添加所有
-void MainWindow::on_action_addall_triggered()
-{
-    manageLines->setAllVisible();
-}
-
-// 槽函数：aciton_addline 添加线路
-void MainWindow::on_action_addline_triggered() {
-    manageLines->setTabVisible(0);
-}
-
-// 槽函数：aciton_addstation 添加站台
-void MainWindow::on_action_addstation_triggered() {
-    manageLines->setTabVisible(1);
-}
-
-// 槽函数：aciton_addconnect 添加连接
-void MainWindow::on_action_addconnect_triggered() {
-    manageLines->setTabVisible(2);
-}
-
-// 槽函数：aciton_addbytext 文本添加
-void MainWindow::on_action_addbytext_triggered() {
-    manageLines->setTabVisible(3);
 }
 
 // 槽函数：action_enlarge，放大视图
@@ -520,6 +464,39 @@ void MainWindow::on_action_linemap_triggered(int reset) {
     }
     drawEdge(subwayGraph->getAllEdges());
     drawStation(subwayGraph->getAllStations());
+}
+
+// 槽函数：action_toolbar 隐藏工具栏
+void MainWindow::on_action_toolbar_triggered() {
+    if (!ui->action_toolbar->isChecked()) {
+        ui->toolBar->setVisible(false);
+    } else {
+        ui->toolBar->setVisible(true);
+    }
+}
+
+// 槽函数：action_statusbar 隐藏状态栏
+void MainWindow::on_action_statusbar_triggered() {
+    if (!ui->action_statusbar->isChecked()) {
+        ui->statusbar->setVisible(false);
+    } else {
+        ui->statusbar->setVisible(true);
+    }
+}
+
+// 槽函数：aciton_wheel 启用滚轮放大缩小
+void MainWindow::on_action_wheel_triggered() {
+    if (!ui->action_wheel->isChecked()) {
+        view->setZoomEnabled(false);
+    } else {
+        view->setZoomEnabled(true);
+    }
+}
+
+// 槽函数：action_close 退出程序
+void MainWindow::on_action_close_triggered() {
+    this->close();
+    QApplication::quit();
 }
 
 // 事件过滤器

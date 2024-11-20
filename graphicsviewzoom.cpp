@@ -5,7 +5,7 @@
 #include <QApplication>
 
 GraphicsViewZoom::GraphicsViewZoom() {
-
+    zoomEnabled = true;
 }
 
 GraphicsViewZoom::GraphicsViewZoom(QGraphicsView* view)
@@ -38,6 +38,11 @@ void GraphicsViewZoom::setView(QGraphicsView *view) {
     view->setDragMode(QGraphicsView::ScrollHandDrag);
 }
 
+// 函数：设置滚轮缩放是否可用
+void GraphicsViewZoom::setZoomEnabled(bool flag) {
+    zoomEnabled = flag;
+}
+
 // 缩放方法
 void GraphicsViewZoom::gentleZoom(double factor) {
     // 计算视口中心的场景位置，防止缩放后视口的焦点偏移
@@ -55,7 +60,7 @@ void GraphicsViewZoom::gentleZoom(double factor) {
 
 // 事件过滤器
 bool GraphicsViewZoom::eventFilter(QObject *object, QEvent *event) {
-    if (event->type() == QEvent::Wheel) {
+    if (event->type() == QEvent::Wheel && zoomEnabled) {
         // 鼠标滚轮事件，处理缩放
         QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
         if (QApplication::keyboardModifiers() == modifiers) {

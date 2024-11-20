@@ -45,10 +45,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         resource.qrc
         graphicsviewzoom.h graphicsviewzoom.cpp
-        managelines.h managelines.cpp managelines.ui
         mainwindow.ui
         subwaygraph.h subwaygraph.cpp
-        apphelp.h apphelp.cpp
         edge.h edge.cpp
         script.py
 
