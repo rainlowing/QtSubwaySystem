@@ -6,8 +6,6 @@
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
-#include <QMutex>
-#include <QMutexLocker>
 
 // 构造函数
 SubwayGraph::SubwayGraph() {

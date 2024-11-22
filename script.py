@@ -18,7 +18,7 @@ api = '408ba23f4126ba7b2e7b3267ae0202c9'
 
 def save_subway_data(city_code, city_pinyin):
     url = f'https://map.amap.com/service/subway?&srhdata={city_code}_drw_{city_pinyin}.json'
-    output_path = f'../data/subway_{city_pinyin}.txt'
+    output_path = f'./data/subway_{city_pinyin}.txt'
 
     response = requests.get(url)
     if response.status_code != 200:
@@ -56,7 +56,7 @@ def save_subway_data(city_code, city_pinyin):
             output_file.write("\n")
             color_index += 1
 
-    print(f"../data/subway_{city_pinyin}.txt")
+    print(f"./data/subway_{city_pinyin}.txt")
     sys.exit(0)
 
 

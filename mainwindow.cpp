@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "appconfig.h"
 
 #include <QDateTime>
 #include <QTimer>
@@ -46,7 +47,8 @@ MainWindow::MainWindow(QWidget *parent)
     initStatus();
 
     // 读取内置数据
-    bool success = subwayGraph->readFileData("../data/subway_wuhan.txt");
+    AppConfig appConfig = AppConfig::instance();
+    bool success = subwayGraph->readFileData(QDir(appConfig.getDataDir()).filePath("default.txt"));
     if (!success) {
         QMessageBox::warning(this, tr("读取数据错误"), tr("\n将无法展示内置线路！"), QMessageBox::Ok);
     }
@@ -113,7 +115,8 @@ void MainWindow::searchCity() {
     labelHint->setText(tr("查询中，请稍等"));
 
     QString program = "python";
-    QString path = R"(D:\QtProjects\WuhanSubway\script.py)";
+    AppConfig appConfig = AppConfig::instance();
+    QString path = appConfig.getScriptsDir() + "/script.py";
     QString argv = cityName.toUtf8().toHex();
     QStringList argument;
     argument.append(path);

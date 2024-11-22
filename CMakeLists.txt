@@ -49,6 +49,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         subwaygraph.h subwaygraph.cpp
         edge.h edge.cpp
         script.py
+        appconfig.h appconfig.cpp
+
 
 
 

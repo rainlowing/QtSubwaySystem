@@ -16,4 +16,10 @@
         <file>icon/text.png</file>
         <file>icon/repost.svg</file>
     </qresource>
+    <qresource prefix="/data">
+        <file>data/default.txt</file>
+    </qresource>
+    <qresource prefix="/scripts">
+        <file>script.py</file>
+    </qresource>
 </RCC>
